@@ -8,7 +8,7 @@ This is a Minesweeper made in C for a school project
 
 - [@Daryl-03](https://github.com/Daryl-03)
 - [@Toudonou](https://github.com/Toudonou)
-- 
+- [@Ulrich-stack](https://github.com/Ulrich-stack)
 
 
 
