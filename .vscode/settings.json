@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"*.ajs": "javascript",
+		"*.html": "html",
+		"stdbool.h": "c"
+	}
+}
