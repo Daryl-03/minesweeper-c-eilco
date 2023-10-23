@@ -15,12 +15,6 @@ typedef struct {
 	int height;
 } Size;
 
-// grid is a 2D array of integers
-typedef struct {
-	int **grid;
-	Size size;
-} Grid;
-
 // now to the cell structure
 typedef struct {
 	Position position; // position of the cell in the grid
@@ -28,6 +22,12 @@ typedef struct {
 	int value; // value of the cell
 	bool flagged; // is the cell flagged?
 } Cell;
+
+// grid is a 2D array of integers
+typedef struct {
+	Cell **grid;
+	Size size;
+} Grid;
 
 // now to the game structure
 typedef struct {
