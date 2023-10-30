@@ -31,6 +31,8 @@ typedef struct {
 
 // now to the game structure
 typedef struct {
+	int id; // id of the game
+	char *name; // name of the game
 	Grid grid; // the grid of the game
 	int mines; // number of mines in the game
 	int flags; // number of flags in the game
