@@ -5,7 +5,7 @@
 
 void save_game(Game *game);
 
-Game *load_game();
+Game *load_game(int id);
 
 void print_statistics();
 #endif 

@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 // Let's define the game structures
@@ -32,7 +34,7 @@ typedef struct {
 // now to the game structure
 typedef struct {
 	int id; // id of the game
-	char *name; // name of the game
+	char name[80]; // name of the game
 	Grid grid; // the grid of the game
 	int mines; // number of mines in the game
 	int flags; // number of flags in the game
@@ -42,9 +44,9 @@ typedef struct {
 } Game;
 
 // some constants
-const Size EASY = {9, 9};
-const Size MEDIUM = {16, 16};
-const Size HARD = {30, 16};
+// const Size EASY = {9, 9};
+// const Size MEDIUM = {16, 16};
+// const Size HARD = {30, 16};
 
 
 #endif // GAME_H

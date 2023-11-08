@@ -2,6 +2,8 @@
 	"files.associations": {
 		"*.ajs": "javascript",
 		"*.html": "html",
-		"stdbool.h": "c"
+		"stdbool.h": "c",
+		"database_management.h": "c",
+		"game.h": "c"
 	}
 }
