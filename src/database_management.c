@@ -3,11 +3,17 @@
 #define file_games_completed "games_completed.txt"
 #define file_games_non_completed "games_non_completed.txt"
 
+// data form in the file : {id;name ;width;height;mines;flags;revealed;score;over}
+
+
+void print_char(char c, int n) {
+    for (int i = 0; i < n; i++) printf("%c", c);
+}
 
 void save_game(Game *game) {
     FILE *file, *tmpFile;
-    char *fileName = game->over ? file_games_completed : file_games_non_completed, chaine[500], ch;
-    int nbrLignes = 1;
+    char *fileName = game->over ? file_games_completed : file_games_non_completed, chaine[10000], ch;
+    int nbrLignes;
 
     file = fopen(fileName, "a+");
     tmpFile = fopen("tmpFile", "a+");
@@ -21,9 +27,7 @@ void save_game(Game *game) {
     }
 
     // count the number of lines in the files
-    while ((ch = (char) fgetc(file)) != EOF) {
-        if (ch == '\n') nbrLignes++;
-    }
+    nbrLignes = number_of_lines_in_file(file) + 1;
 
     nbrLignes = nbrLignes >= 10 ? 9 : nbrLignes;
     game->id = nbrLignes--; // attribution of game id
@@ -47,7 +51,7 @@ void save_game(Game *game) {
 
     // we copy the old backup
     rewind(file);
-    while ((fgets(chaine, 500, file)) != NULL && nbrLignes >= 1) {
+    while ((fgets(chaine, 10000, file)) != NULL && nbrLignes >= 1) {
         chaine[1] = (char) ('0' + nbrLignes--);
         fputs(chaine, tmpFile);
     }
@@ -61,7 +65,7 @@ void save_game(Game *game) {
 Game *load_game(int id) {
     FILE *file = NULL;
     file = fopen(file_games_non_completed, "r");
-    int over;
+    int over, nbrLignes = 0;
     char ch = '1';
     Game *game = malloc(sizeof(Game));
 
@@ -73,6 +77,12 @@ Game *load_game(int id) {
         printf("Error during allocation");
         exit(EXIT_FAILURE);
     }
+
+    // count the number of line in the file
+    nbrLignes = number_of_lines_in_file(file);
+
+    if (!nbrLignes) return NULL;
+    id = nbrLignes - id + 1;
 
     while (ch != EOF) {
         // fetch a game
@@ -122,18 +132,28 @@ void print_for_loading() {
     Game *game = malloc(sizeof(Game));
 
     if (!file) {
-        printf("Error on file %s: %s", file_games_non_completed, strerror(errno));
-        exit(EXIT_FAILURE);
+        printf("Aucune sauvegarde trouvée");
+        if (game) free(game);
+        return;
     }
     if (!game) {
         printf("Error during allocation");
+        if (file) free(file);
         exit(EXIT_FAILURE);
     }
 
     // count the number of line in the file
-    while ((ch = (char) fgetc(file)) != EOF) {
-        if (ch == '\n') nbrLignes++;
+    nbrLignes = number_of_lines_in_file(file);
+
+    if (!nbrLignes) {
+        printf("La sauvegarde est vide");
+        return;
     }
+
+    // table head
+    horitontal_line();
+    table_head();
+    horitontal_line();
 
     // fetch each game and print it
     rewind(file);
@@ -141,10 +161,119 @@ void print_for_loading() {
         fscanf(file, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}", &game->id, game->name, &game->grid.size.width,
                &game->grid.size.height, &game->mines, &game->flags, &game->revealed, &game->score, &over);
         game->over = over;
-        fprintf(stdout, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}\n", i, game->name, game->grid.size.width, game->grid.size.height,
-                game->mines, game->flags, game->revealed, game->score, game->over);
+
+        // reintroduces spaces
+        for (int j = 0; j < strlen(game->name); j++)
+            if (game->name[j] == '|') game->name[j] = ' ';
+
+        game->id = i;
+        table_row(game, game->grid.size.width == 9 ? "Easy" : game->grid.size.width == 16 ? "Medium" : "Hard");
+
+        // line code to go to the next line
+        while ((ch = (char) fgetc(file)) != EOF && ch != '\n');
     }
+    horitontal_line();
 
     free(game);
     fclose(file);
+}
+
+void print_statistics() {
+    FILE *file = NULL;
+    file = fopen(file_games_completed, "r");
+
+    if (!file) {
+        printf("Aucune statistique trouvée");
+        return;
+    }
+
+    fclose(file);
+}
+
+int number_of_lines_in_file(FILE *file) {
+    int nbrLignes = 0;
+    char ch = '1';
+    while ((ch = (char) fgetc(file)) != EOF) {
+        if (ch == '\n') nbrLignes++;
+    }
+    rewind(file);
+    return nbrLignes;
+}
+
+void table_head() {
+    printf("| Id ");
+    print_char('|', 1);
+    print_char(' ', (40 - strlen("name")) / 2);
+    printf("Name");
+    print_char(' ', (40 - strlen("name")) / 2);
+    printf("|");
+    printf(" Levels ");
+    printf("|");
+    printf(" Mines ");
+    printf("|");
+    printf(" Flags ");
+    printf("|");
+    printf(" Revealed ");
+    printf("|");
+    print_char(' ', (strlen("23h59m59s") - strlen("score")) / 2);
+    printf(" Score ");
+    print_char(' ', (strlen("23h59m59s") - strlen("score")) / 2);
+    printf("|\n");
+}
+
+void table_row(Game *game, char *level) {
+    char str[50];
+    if (game) {
+        sprintf(str, "0%d", game->id);
+        printf("| %s ", str);
+        print_char('|', 1);
+        sprintf(str, "%s", game->name);
+        print_char(' ', (40 - (int) strlen(str)) / 2);
+        printf("%s", str);
+        print_char(' ', (40 - (int) strlen(str)) / 2 + (strlen(str) % 2 == 1));
+        printf("|");
+        print_char(' ', (int) (strlen("Levels") + 2 - strlen(level)) / 2);
+        printf("%s", level);
+        print_char(' ', (int) (strlen("Levels") + 2 - strlen(level)) / 2 + (strlen(level) % 2 == 1));
+        printf("|");
+        sprintf(str, "%d", game->mines);
+        print_char(' ', (int) (strlen("Mines") + 2 - strlen(str)) / 2);
+        printf("%s", str);
+        print_char(' ', (int) (strlen("Mines") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
+        printf("|");
+        sprintf(str, "%d", game->flags);
+        print_char(' ', (int) (strlen("Flags") + 2 - strlen(str)) / 2);
+        printf("%s", str);
+        print_char(' ', (int) (strlen("Flags") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
+        printf("|");
+        sprintf(str, "%d", game->revealed);
+        print_char(' ', (int) (strlen("Revealed") + 2 - strlen(str)) / 2);
+        printf("%s", str);
+        print_char(' ', (int) (strlen("Revealed") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 1));
+        printf("|");
+        sprintf(str, "%d", game->score);
+        print_char(' ', (int) (strlen("23h59m59s") - strlen(str)) / 2);
+        printf(" %s ", str);
+        print_char(' ', (int) (strlen("23h59m59s") - strlen(str)) / 2);
+        printf("|\n");
+    }
+}
+
+void horitontal_line() {
+    print_char('+', 1);
+    print_char('-', 4);
+    print_char('+', 1);
+    print_char('-', 40);
+    print_char('+', 1);
+    print_char('-', strlen("level ") + 2);
+    print_char('+', 1);
+    print_char('-', strlen("mines") + 2);
+    print_char('+', 1);
+    print_char('-', strlen("flags") + 2);
+    print_char('+', 1);
+    print_char('-', strlen("revealed") + 2);
+    print_char('+', 1);
+    print_char('-', strlen("23h59m59s") + 2);
+    print_char('+', 1);
+    printf("\n");
 }
