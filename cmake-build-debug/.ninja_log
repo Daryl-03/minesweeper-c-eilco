@@ -1,0 +1,9 @@
+# ninja log v5
+5	1167	7215299815174917	CMakeFiles/minesweeper_c_eilco.dir/src/game.c.obj	8292c27894f35845
+10	1225	7215256923137365	CMakeFiles/minesweeper_c_eilco.dir/main.c.obj	cf2151d5ff5582fe
+1168	1599	7215299819344915	minesweeper_c_eilco.exe	3e8e8111c9d50a95
+5	346	7215301688202232	CMakeFiles/minesweeper_c_eilco.dir/src/game.c.obj	8292c27894f35845
+347	924	7215301693702213	minesweeper_c_eilco.exe	3e8e8111c9d50a95
+13	336	7215646390177052	CMakeFiles/minesweeper_c_eilco.dir/src/game.c.obj	8292c27894f35845
+4	371	7215646390567037	CMakeFiles/minesweeper_c_eilco.dir/main.c.obj	cf2151d5ff5582fe
+371	750	7215646394297031	minesweeper_c_eilco.exe	3e8e8111c9d50a95
