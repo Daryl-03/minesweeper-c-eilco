@@ -12,7 +12,7 @@ void print_char(char c, int n) {
 
 void save_game(Game *game) {
     FILE *file, *tmpFile;
-    char *fileName = game->over ? file_games_completed : file_games_non_completed, chaine[10000], ch;
+    char *fileName = game->over ? file_games_completed : file_games_non_completed, chaine[10000];
     int nbrLignes;
 
     file = fopen(fileName, "a+");
@@ -43,8 +43,8 @@ void save_game(Game *game) {
     // writing the characteristics of the game cells
     for (int i = 0; i < game->grid.size.height; i++) {
         for (int j = 0; j < game->grid.size.width; j++) {
-            fprintf(tmpFile, "-{%d-%d;%d;%d;%d}", game->grid.grid[i][j].position.x, game->grid.grid[i][j].position.y,
-                    game->grid.grid[i][j].revealed, game->grid.grid[i][j].value, game->grid.grid[i][j].flagged);
+            fprintf(tmpFile, "-{%d-%d;%d;%d;%d}", game->grid.cells[i][j].position.x, game->grid.cells[i][j].position.y,
+                    game->grid.cells[i][j].revealed, game->grid.cells[i][j].value, game->grid.cells[i][j].flagged);
         }
     }
     fprintf(tmpFile, "\n");
@@ -85,6 +85,12 @@ Game *load_game(int id) {
     id = nbrLignes - id + 1;
 
     while (ch != EOF) {
+        game->name = malloc(sizeof(char ) * GAME_NAME_SIZE);
+        if (!(game->name)) {
+            printf("Error during allocation");
+            exit(EXIT_FAILURE);
+        }
+
         // fetch a game
         fscanf(file, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}", &game->id, game->name, &game->grid.size.width,
                &game->grid.size.height, &game->mines, &game->flags, &game->revealed, &game->score, &over);
@@ -97,20 +103,20 @@ Game *load_game(int id) {
             for (int i = 0; i < strlen(game->name); i++)
                 if (game->name[i] == '|') game->name[i] = ' ';
 
-            game->grid.grid = (Cell **) malloc(game->grid.size.height * sizeof(Cell *));
-            if (!game->grid.grid) {
+            game->grid.cells = (Cell **) malloc(game->grid.size.height * sizeof(Cell *));
+            if (!game->grid.cells) {
                 printf("Error during allocation");
                 exit(EXIT_FAILURE);
             }
 
             // fetching game cells information
             for (int i = 0; i < game->grid.size.height; i++) {
-                game->grid.grid[i] = (Cell *) malloc(game->grid.size.width * sizeof(Cell));
+                game->grid.cells[i] = (Cell *) malloc(game->grid.size.width * sizeof(Cell));
                 for (int j = 0, revealed, flagged; j < game->grid.size.width; j++) {
-                    fscanf(file, "-{%d-%d;%d;%d;%d}", &game->grid.grid[i][j].position.x,
-                           &game->grid.grid[i][j].position.y, &revealed, &game->grid.grid[i][j].value, &flagged);
-                    game->grid.grid[i][j].revealed = revealed;
-                    game->grid.grid[i][j].flagged = flagged;
+                    fscanf(file, "-{%d-%d;%d;%d;%d}", &game->grid.cells[i][j].position.x,
+                           &game->grid.cells[i][j].position.y, &revealed, &game->grid.cells[i][j].value, &flagged);
+                    game->grid.cells[i][j].revealed = revealed;
+                    game->grid.cells[i][j].flagged = flagged;
                 }
             }
             return game;
@@ -138,7 +144,6 @@ void print_for_loading() {
     }
     if (!game) {
         printf("Error during allocation");
-        if (file) free(file);
         exit(EXIT_FAILURE);
     }
 
@@ -158,6 +163,12 @@ void print_for_loading() {
     // fetch each game and print it
     rewind(file);
     for (int i = 1; i <= nbrLignes; i++) {
+        game->name = malloc(sizeof(char ) * GAME_NAME_SIZE);
+        if (!(game->name)) {
+            printf("Error during allocation");
+            exit(EXIT_FAILURE);
+        }
+
         fscanf(file, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}", &game->id, game->name, &game->grid.size.width,
                &game->grid.size.height, &game->mines, &game->flags, &game->revealed, &game->score, &over);
         game->over = over;
@@ -222,7 +233,7 @@ void table_head() {
 }
 
 void table_row(Game *game, char *level) {
-    char str[50];
+    char str[GAME_NAME_SIZE];
     if (game) {
         sprintf(str, "0%d", game->id);
         printf("| %s ", str);
