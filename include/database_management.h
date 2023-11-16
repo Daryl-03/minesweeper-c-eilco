@@ -7,9 +7,9 @@ void save_game(Game *game);
 
 Game *load_game(int id);
 
-void print_for_loading();
+Game * print_for_loading(int *size);
 
-void print_statistics();
+Game *print_statistics(int level, int *size);
 
 void horitontal_line();
 
@@ -19,4 +19,14 @@ void table_head();
 
 int number_of_lines_in_file(FILE *file);
 
-#endif 
+int game_level(Game *game);
+
+void echanger_tas(Game *tas, int i, int j);
+
+void inserer(Game* heap, int *size, Game game);
+
+void deleteMin(Game *heap, int *size);
+
+void trierParTas(Game *tableau, const int *size);
+
+#endif
