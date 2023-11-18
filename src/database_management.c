@@ -51,7 +51,7 @@ void save_game(Game *game) {
             game->grid.size.height, game->mines, game->flags, game->revealed, game->score, game->over);
 
     // writing the characteristics of the game cells
-    if (game->over) {
+    if (!game->over) {
         for (int i = 0; i < game->grid.size.height; i++) {
             for (int j = 0; j < game->grid.size.width; j++) {
                 fprintf(tmpFile, "-{%d-%d;%d;%d;%d}", game->grid.cells[i][j].position.x,
