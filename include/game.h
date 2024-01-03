@@ -68,7 +68,7 @@ Game* newGame(int id, char *name, Size size, int mines);
 void playGame(Game *game);
 
 // initialize a game (fill the grid with mines and values)
-void initGame(Game *game);
+void initGame(Game *game, int x, int y);
 
 // generate mines from shuffling
 void generateMinesFromShuffling(Game *game, int *guessingList);
@@ -78,6 +78,17 @@ void addOneToCellsAroundMine(Grid* grid, int haut, int larg);
 
 // print a grid (for debug purposes)
 void printGrid(Grid grid);
+
+// print a grid from a player's perspective (for debug purposes)
+void printGridFromPlayerPerspective(Grid grid);
+
+int removeSurroundingCells(const Game *game, int x, int y, int *guessingList, int range);
+
+void generateMinesFromRandomGuess(Game *game, int *guessingList, int range);
+
+void generateFromShuffling(const Game *game, int *guessingList);
+
+void revealAdjacentCells(Game *pGame, int x, int y);
 
 // reveal a cell
 void revealCell(Game *game, int x, int y);
