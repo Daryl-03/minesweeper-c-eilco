@@ -23,94 +23,93 @@ void setConsoleToUTF8()
 #endif
 
 
+void displayGrid(Grid *grid) {
+    int width = grid->size.width;
+    int height = grid->size.height;
+    Cell **cells = grid->cells;
 
-
-void afficherGrille(Cell grille[][GRID_SIZE], int taille)
-{
-    int i, j;
     printf("  ");
-    for (i = 1; i <= taille; ++i)
+    for (int i = 1; i <= width; ++i)
         printf(" %d  ", i);
     printf("\n");
     printf(" ╔");
-    for (i = 0; i < taille - 1; ++i)
+    for (int i = 0; i < width - 1; ++i)
         printf("═══╦");
     printf("═══╗\n");
-    for (i = 0; i < taille; ++i)
-    {
+
+    for (int i = 0; i < height; ++i) {
         printf("%c", 'A' + i);
         printf("║");
-        for (j = 0; j < taille; ++j)
-        {
-            if (!grille[i][j].revealed)
+        for (int j = 0; j < width; ++j) {
+            if (!cells[i][j].revealed)
                 printf(" ■ ║");
-            else if (grille[i][j].value == -1 && grille[i][j].revealed)
+            else if (cells[i][j].value == -1 && cells[i][j].revealed)
                 printf(" ✹ ║");
-            else if(grille[i][j].revealed)
-                printf(" %d ║", grille[i][j].value);
+            else if (cells[i][j].revealed)
+                printf(" %d ║", cells[i][j].value);
         }
         printf("\n");
-        if (i < taille - 1)
-        {
+        if (i < height - 1) {
             printf(" ╠");
-            for (j = 0; j < taille - 1; ++j)
+            for (int j = 0; j < width - 1; ++j)
                 printf("═══╬");
             printf("═══╣\n");
         }
     }
     printf(" ╚");
-    for (i = 0; i < taille - 1; ++i)
+    for (int i = 0; i < width - 1; ++i)
         printf("═══╩");
     printf("═══╝\n");
 }
 
-void placerMines(Cell grille[][GRID_SIZE], int mines)
-{
+void placeMines(Cell **grid, int mines, int width, int height) {
     srand(time(NULL));
     int i, j;
-    for (int count = 0; count < mines; ++count)
-    {
-        do
-        {
-            i = rand() % GRID_SIZE;
-            j = rand() % GRID_SIZE;
-        } while (grille[i][j].value == -1);
-        grille[i][j].value = -1;
+    for (int count = 0; count < mines; ++count) {
+        do {
+            i = rand() % height;
+            j = rand() % width;
+        } while (grid[i][j].value == -1);
+        grid[i][j].value = -1;
     }
 }
 
-void initialiserGrille(Cell grille[][GRID_SIZE], int taille)
-{
-    for (int i = 0; i < taille; ++i)
-    {
-        for (int j = 0; j < taille; ++j)
-        {
-            grille[i][j].value = 1;
-            grille[i][j].revealed = false;
-            grille[i][j].flagged = false;
-            grille[i][j].position.x = i;
-            grille[i][j].position.y = j;
+void initializeGrid(Cell **grid, int width, int height) {
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            grid[i][j].value = 1;
+            grid[i][j].revealed = false;
+            grid[i][j].flagged = false;
+            grid[i][j].position.x = i;
+            grid[i][j].position.y = j;
         }
     }
 }
 
-void revealAll(Cell grid[][GRID_SIZE])
-{
-    for (int i = 0; i < GRID_SIZE; i++)
-    {
-        for (int j = 0; j < GRID_SIZE; j++)
-        {
+void revealAll(Cell **grid, int width, int height) {
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
             grid[i][j].revealed = true;
         }
     }
 }
 
-void minesweeper(Cell grille[][GRID_SIZE], int taille, int mines)
+bool checkIfWon(int width, int height, int mines, int opened){
+    if(width*height - mines == opened)
+    return true;
+};
+
+
+void minesweeper(Grid *grid, int mines)
 {
-    clearScreen();
-    initialiserGrille(grille, GRID_SIZE);
-    placerMines(grille, mines);
-    afficherGrille(grille, GRID_SIZE);
+    int width = grid->size.width;
+    int height = grid->size.height;
+    int opened = 0;
+    Cell **cells = grid->cells;
+
+    initializeGrid(cells, width, height);
+    placeMines(cells, mines, width, height);
+    displayGrid(grid);
 
     Position coord;
     char input[3];
@@ -131,33 +130,40 @@ void minesweeper(Cell grille[][GRID_SIZE], int taille, int mines)
             coord.x = tolower(input[0]) - 'a';
             coord.y = input[1] - '1';
 
-            if (coord.x < 0 || coord.x >= GRID_SIZE || coord.y < 0 || coord.y >= GRID_SIZE)
+            if (coord.x < 0 || coord.x >= width || coord.y < 0 || coord.y >= height)
             {
                 clearScreen();
-                afficherGrille(grille, GRID_SIZE);
+                displayGrid(grid);
                 printf("\nDernier mouvement effectué: ⚠️ Coordonnées invalides⚠️");
             }
             else
             {
-                grille[coord.x][coord.y].revealed = true;
+                cells[coord.x][coord.y].revealed = true;
                 clearScreen();
                 printf("Dernier mouvement effectué: %s\n", input);
-                afficherGrille(grille, GRID_SIZE);
+                displayGrid(grid);
 
-                if (grille[coord.x][coord.y].value == -1)
+                if (cells[coord.x][coord.y].value == -1)
                 {
                     clearScreen();
-                    revealAll(grille);
+                    revealAll(cells, width, height);
                     lost = true;
                     break;
                 }
+                else 
+                    opened++;
             }
         }
     }
 
     if(lost){
-        afficherGrille(grille,GRID_SIZE);
-        printf("Partie perdue!");
+        displayGrid(grid);
+        printf("\nPartie perdue!");
+    }
+    else if(checkIfWon(width, height, mines, opened)){
+        revealAll(cells, width, height);
+        displayGrid(grid);
+        printf("\nVictoire !");
     }
 }
 
@@ -171,9 +177,13 @@ void printMenu()
     printf("4. Quitter le jeu\n");
 }
 
-void newGame()
-{
-    Cell grille[GRID_SIZE][GRID_SIZE];
+void newGame() {
+    Size gridSize = {GRID_WIDTH, GRID_HEIGHT};
+    Cell **grille = malloc(gridSize.height * sizeof(Cell *));
+    for (int i = 0; i < gridSize.height; ++i) {
+        grille[i] = malloc(gridSize.width * sizeof(Cell));
+    }
+
     int mines = 5; // Nombre de mines dans la grille
     int difficulty;
 
@@ -185,19 +195,25 @@ void newGame()
 
     scanf("%d", &difficulty);
 
-    if (difficulty == 1)
-    {
-        minesweeper(grille, GRID_SIZE, mines);
+    Grid gameGrid;
+    gameGrid.cells = grille;
+    gameGrid.size = gridSize;
+
+    if (difficulty == 1) {
+        minesweeper(&gameGrid, mines);
+    } else if (difficulty == 2) {
+        minesweeper(&gameGrid, mines);
+    } else if (difficulty == 3) {
+        minesweeper(&gameGrid, mines);
     }
-    else if (difficulty == 2)
-    {
-        minesweeper(grille, GRID_SIZE, mines);
+
+    // Après le jeu, libérez la mémoire allouée pour la grille
+    for (int i = 0; i < gridSize.height; ++i) {
+        free(grille[i]);
     }
-    else if (difficulty == 3)
-    {
-        minesweeper(grille, GRID_SIZE, mines);
-    }
+    free(grille);
 }
+
 
 void loadGame()
 {
