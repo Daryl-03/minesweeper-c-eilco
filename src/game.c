@@ -3,6 +3,10 @@
 //
 
 #include "../include/game.h"
+#include "../include/interface.h"
+#include "../include/database_management.h"
+
+void freeGameStructure(Game *game);
 
 Cell createCell(int x, int y){
     Position position = {x, y};
@@ -57,6 +61,9 @@ void initGame(Game *game, int x, int y){
     range = removeSurroundingCells(game, x, y, guessingList, range);
 //    generateMinesFromShuffling(game, guessingList);
     generateMinesFromRandomGuess(game, guessingList, range);
+
+//    reveal the cell
+    revealCell(game, x, y);
 }
 
 int removeSurroundingCells(const Game *game, int x, int y, int *guessingList, int range) {
@@ -161,7 +168,7 @@ void printGridFromPlayerPerspective(Grid grid){
     }
 }
 
-Game* newGame(int id, char *name, Size size, int mines){
+Game* newGameGeneration(int id, char *name, Size size, int mines){
     Game *game = malloc(sizeof (Game));
 
     // error handling
@@ -231,16 +238,19 @@ void addOneToCellsAroundMine(Grid* grid, int haut, int larg){
 }
 
 void revealCell(Game* game, int x, int y){
-    printf("Revealing cell at %d %d\n", x, y);
+//    printf("Revealing cell at %d %d\n", x, y);
     game->grid.cells[y][x].revealed = true;
 
     int value = game->grid.cells[y][x].value;
 
     if(value == -1){
+        printf("Game over !\n");
         game->over = true;
     } else if (value == 0){
         revealAdjacentCells(game, x, y);
     }
+
+    game->revealed++;
 }
 
 void revealAdjacentCells(Game *game, int x, int y) {
@@ -252,18 +262,21 @@ void revealAdjacentCells(Game *game, int x, int y) {
     if(y-1 >= 0){
         if(x-1 >= 0 && !cells[y-1][x-1].revealed){
             cells[y-1][x-1].revealed = true;
+            game->revealed++;
             if(cells[y-1][x-1].value == 0){
                 revealAdjacentCells(game, x-1, y-1);
             }
         }
         if(!cells[y-1][x].revealed){
             cells[y-1][x].revealed = true;
+            game->revealed++;
             if(cells[y-1][x].value == 0){
                 revealAdjacentCells(game, x, y-1);
             }
         }
         if(x+1 < game->grid.size.width && !cells[y-1][x+1].revealed){
             cells[y-1][x+1].revealed = true;
+            game->revealed++;
             if(cells[y-1][x+1].value == 0){
                 revealAdjacentCells(game, x+1, y-1);
             }
@@ -272,12 +285,14 @@ void revealAdjacentCells(Game *game, int x, int y) {
 
     if(x-1 >= 0 && !cells[y][x-1].revealed){
         cells[y][x-1].revealed = true;
+        game->revealed++;
         if(cells[y][x-1].value == 0){
             revealAdjacentCells(game, x-1, y);
         }
     }
     if(x+1 < game->grid.size.width && !cells[y][x+1].revealed){
         cells[y][x+1].revealed = true;
+        game->revealed++;
         if(cells[y][x+1].value == 0){
             revealAdjacentCells(game, x+1, y);
         }
@@ -286,22 +301,121 @@ void revealAdjacentCells(Game *game, int x, int y) {
     if(y+1 < game->grid.size.height){
         if(x-1 >= 0 && !cells[y+1][x-1].revealed){
             cells[y+1][x-1].revealed = true;
+            game->revealed++;
             if(cells[y+1][x-1].value == 0){
                 revealAdjacentCells(game, x-1, y+1);
             }
         }
         if(!cells[y+1][x].revealed){
             cells[y+1][x].revealed = true;
+            game->revealed++;
             if(cells[y+1][x].value == 0){
                 revealAdjacentCells(game, x, y+1);
             }
         }
         if(x+1 < game->grid.size.width && !cells[y+1][x+1].revealed){
             cells[y+1][x+1].revealed = true;
+            game->revealed++;
             if(cells[y+1][x+1].value == 0){
                 revealAdjacentCells(game, x+1, y+1);
             }
         }
     }
+
+}
+
+void createAndPlayGame(){
+
+    int mines = 0;
+    Size size;
+    getDifficultySettingsFromUser(&mines, &size);
+
+    if(mines == 0){
+        return;
+    }
+
+    Game *game = newGameGeneration(0, "", size, mines);
+    bool init = false, play = true;
+    InGameAction action;
+    Position position = {0, 0};
+
+    while(play){
+
+        getActionFromUser(&(game->grid), &position, &action);
+
+        // logs
+//        printf("Action: %c\n", action);
+//        printf("Position: %d %d\n", position.x, position.y);
+
+
+        if(!init){
+            initGame(game, position.x, position.y);
+            printf("Position init: %d %d\n", position.x, position.y);
+            init = true;
+        } else {
+            switch (action) {
+                case REVEAL:
+                    revealCell(game, position.x, position.y);
+                    if(game->over){
+                        printf("Game over!\n");
+                        play = false;
+                    } else if(isGameWon(game)){
+                        handleGameWon(game);
+                    }
+                    break;
+                case FLAG:
+                    game->grid.cells[position.y][position.x].flagged = true;
+                    break;
+                case UNFLAG:
+                    game->grid.cells[position.y][position.x].flagged = false;
+                    break;
+                case SAVE:
+                    save_game(game);
+                    break;
+                case QUIT:
+                    play = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    freeGameStructure(game);
+    game = NULL;
+}
+
+void freeGameStructure(Game *game) {
+    free(game->name);
+    for(int i=0; i<game->grid.size.height; i++){
+        free(game->grid.cells[i]);
+    }
+    free(game->grid.cells);
+    free(game);
+}
+
+void handleGameWon(Game *game){
+    clearScreen();
+    revealAllCells(game);
+    afficherGrille(&game->grid);
+    printf("You won!\n");
+}
+
+bool isGameWon(const Game *game) {
+    return game->revealed == game->grid.size.width * game->grid.size.height - game->mines;
+}
+
+void revealAllCells(Game *game) {
+    for(int i=0; i<game->grid.size.height; i++){
+        for(int j=0; j<game->grid.size.width; j++){
+            game->grid.cells[i][j].revealed = true;
+        }
+    }
+}
+
+void launchMinesweeper(){
+
+    clearScreen();
+    menu();
 
 }

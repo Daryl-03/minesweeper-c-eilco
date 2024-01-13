@@ -6,9 +6,13 @@
 #define MEDIUM_MINES 40
 #define HARD_MINES 99
 
-#define EASY_SIZE {9, 9};
-#define MEDIUM_SIZE  {16, 16};
-#define HARD_SIZE {30, 16};
+//#define EASY_SIZE {9, 9};
+//#define MEDIUM_SIZE  {16, 16};
+//#define HARD_SIZE {30, 16};
+
+#define EASY_SIZE (Size){9, 9}
+#define MEDIUM_SIZE (Size){16, 16}
+#define HARD_SIZE (Size){30, 16}
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -28,6 +32,10 @@ typedef struct size{
 	int width;
 	int height;
 } Size;
+
+//const Size EASY_SIZE = {9, 9}, MEDIUM_SIZE = {16, 16}, HARD_SIZE = {30, 16};
+
+
 
 // now to the cell structure
 typedef struct cell{
@@ -55,6 +63,21 @@ typedef struct game{
 	bool over; // is the game over?
 } Game;
 
+typedef enum difficulty{
+    EASY,
+    MEDIUM,
+    HARD,
+    NONE
+} Difficulty;
+
+typedef enum inGameAction{
+    REVEAL='r',
+    FLAG = 'f',
+    UNFLAG = 'u',
+    SAVE = 's',
+    QUIT = 'q'
+} InGameAction;
+
 // now to the functions
 Cell createCell(int x, int y);
 
@@ -62,7 +85,7 @@ Cell createCell(int x, int y);
 Grid newGrid(Size size);
 
 // create a new game
-Game* newGame(int id, char *name, Size size, int mines);
+Game* newGameGeneration(int id, char *name, Size size, int mines);
 
 // play a game
 void playGame(Game *game);
@@ -92,5 +115,19 @@ void revealAdjacentCells(Game *pGame, int x, int y);
 
 // reveal a cell
 void revealCell(Game *game, int x, int y);
+
+bool isGameWon(const Game *game);
+
+// reveal all cells
+void revealAllCells(Game *game);
+
+// game won
+void handleGameWon(Game *game);
+
+// create and play a new game
+void createAndPlayGame();
+
+// launch minesweeper
+void launchMinesweeper();
 
 #endif // GAME_H

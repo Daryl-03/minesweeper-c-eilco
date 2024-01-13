@@ -129,6 +129,9 @@ Game *load_game(int id) {
             game->grid.cells = (Cell **) malloc(game->grid.size.height * sizeof(Cell *));
             if (!game->grid.cells) {
                 printf("Error during allocation");
+                free(game->name);
+                free(game);
+                fclose(file);
                 exit(EXIT_FAILURE);
             }
 
