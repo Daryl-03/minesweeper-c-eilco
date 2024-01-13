@@ -386,11 +386,19 @@ void createAndPlayGame(){
 }
 
 void freeGameStructure(Game *game) {
-    free(game->name);
-    for(int i=0; i<game->grid.size.height; i++){
-        free(game->grid.cells[i]);
+    if(game == NULL) {
+        fprintf(stderr, "Attempted to free a game with a NULL value\n");
     }
-    free(game->grid.cells);
+
+
+    if (game->grid.cells != NULL){
+        for (int i = 0; i < game->grid.size.height; i++) {
+            if (game->grid.cells[i] != NULL){
+                free(game->grid.cells[i]);
+            }
+        }
+        free(game->grid.cells);
+    }
     free(game);
 }
 
