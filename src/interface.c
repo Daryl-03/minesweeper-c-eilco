@@ -207,6 +207,12 @@ void loadGame() {
     printf("\nEnsemble des jeux sauvegardes\n");
     nbrLigne = print_for_loading();
 
+    if(nbrLigne == 0){
+        printf("\nTap pour retourner au menu");
+        getchar();
+        menu();
+    }
+
     while (!(-1 < choice && choice <= nbrLigne)) {
         printf("Selectionner une partie à chager (un nombre entre 1 et %d, 0 pour retourner au menu) : ", nbrLigne);
         scanf("%d", &choice);
