@@ -9,7 +9,9 @@ Game *load_game(int id);
 
 int print_for_loading();
 
-Game *print_statistics(int level, int *size);
+Game *fetch_stats(int level, int *size);
+
+void print_statistics(int level);
 
 void horitontal_line();
 

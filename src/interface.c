@@ -28,7 +28,7 @@ void setConsoleToUTF8() {
 
 void afficherGrille(Grid *grid) {
     char *helpList[] = {"Aide de jeu",
-                        "Entrez une action suivie des coordonnees (ex: r A1)",
+                        "Entrez une action suivie des coordonnees (ex: ra4)",
                         "Actions possibles: ",
                         "r: reveler une case",
                         "f: placer un drapeau",
@@ -43,15 +43,19 @@ void afficherGrille(Grid *grid) {
 
     printf("  ");
     for (int i = 0; i < width; ++i)
-        printf(" %c  ", (char) ('A' + i));
+        printf("  %c ", (char) ('a' + i));
     printf("\n");
-    printf(" ╔");
+    printf("  ╔");
     for (int i = 0; i < width - 1; ++i)
         printf("═══╦");
     printf("═══╗\n");
 
     for (int i = 0; i < height; ++i) {
-        printf("%c", 'a' + i);
+        if (i <= 8)
+            printf(" %d", i + 1);
+        else
+            printf("%d", i + 1);
+
         printf("║");
         for (int j = 0; j < width; ++j) {
             if (!cells[i][j].revealed) {
@@ -75,7 +79,7 @@ void afficherGrille(Grid *grid) {
 
         printf("\n");
         if (i < height - 1) {
-            printf(" ╠");
+            printf("  ╠");
             for (int j = 0; j < width - 1; ++j)
                 printf("═══╬");
             printf("═══╣");
@@ -84,38 +88,41 @@ void afficherGrille(Grid *grid) {
         }
     }
 
-    printf(" ╚");
+    printf("  ╚");
     for (int i = 0; i < width - 1; ++i)
         printf("═══╩");
     printf("═══╝\n");
 }
 
-void getActionFromUser(Game *game, Position *position, InGameAction *action) {
-    char entrees[3];
 
+void getActionFromUser(Game *game, Position *position, InGameAction *action) {
+    char entrees[100];
+
+    getInput:
     afficherGrille(&(game->grid));
     printf("\n>> ");
     scanf("%s", entrees);
     getchar();
-
+    entrees[4] = '\0';
 
     position->x = tolower(entrees[1]) - 'a';
-    position->y = tolower(entrees[2]) - 'a';
+    position->y = atoi(entrees + 2) - 1;
     *action = (InGameAction) (char) tolower(entrees[0]);
+
 
     if ((*action == QUIT || *action == SAVE)) {
         return;
     } else {
         if (*action != REVEAL && *action != FLAG && *action != UNFLAG && *action != SAVE && *action != QUIT) {
             clearScreen();
-            printf("Action invalide\n");
-            getActionFromUser(game, position, action);
+            printf("Action invalide : %c\n", 'e');
+            goto getInput;
         }
         if (position->x < 0 || position->x >= game->grid.size.width || position->y < 0 ||
             position->y >= game->grid.size.height) {
             clearScreen();
             printf("Coordonnees invalides\n");
-            getActionFromUser(game, position, action);
+            goto getInput;
         }
     }
 }
@@ -148,7 +155,7 @@ void menu() {
             printStatistics();
             break;
         case 4:
-            printf("Au revoir\n");
+            quitGame(NULL);
             break;
         default:
             printf("Choix invalide\n");
@@ -213,7 +220,35 @@ void loadGame() {
 }
 
 void printStatistics() {
-    printf("Ensemble des statistiques");
+    int choice = -1;
+    printf("\nEnsemble des statistiques\n");
+
+    while (!(0 <= choice && choice <= 3)) {
+        printf("Entrer un nombre\n1. Facile\n2. Moyen\n3. Difficile\n0. Retour\n>> ");
+        scanf("%d", &choice);
+    }
+
+    if (choice == 0) {
+        menu();
+    } else {
+        print_statistics(choice - 1);
+
+        choix:
+        printf("Entrer un chiffre\n0. Retour au menu\n1. Quitter le jeu\n>> ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 0:
+                menu();
+                break;
+            case 1:
+                quitGame(NULL);
+                break;
+            default:
+                goto choix;
+                break;
+        }
+    }
 }
 
 void getGameInformationFromUser(Game *game) {
@@ -221,5 +256,17 @@ void getGameInformationFromUser(Game *game) {
     scanf("%[^\n]", game->name);
 }
 
+void print_game_time(int gameTime) {
+    printf("Temps de jeu : ");
+    if ((int) (gameTime / 3600) != 0){
+        printf("%dh ", gameTime/3600);
+        gameTime = gameTime%3600;
+    }
+    if ((int) (gameTime / 60) != 0){
+        printf("%dmin ", gameTime/60);
+        gameTime = gameTime%60;
+    }
+    printf("%ds\n", gameTime);
+}
 
 

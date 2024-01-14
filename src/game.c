@@ -333,7 +333,7 @@ void playGame(Game *game) {
 
     time_t time1 = time(NULL);
 
-    while (play) {
+    while (play && game) {
         clearScreen();
         getActionFromUser(game, &position, &action);
 
@@ -342,15 +342,17 @@ void playGame(Game *game) {
                 revealCell(game, position.x, position.y);
                 if (game->over) {
                     handleGameFinish(game);
+                    game->score += (int)(time(NULL) - time1);
                     printf("You lose\n");
                     play = false;
+                    print_game_time(game->score);
                 } else if (isGameWon(game)) {
                     handleGameFinish(game);
                     game->score += (int)(time(NULL) - time1);
                     getGameInformationFromUser(game);
                     save_game(game);
                     play = false;
-                    printf("Temps de jeu : %d\n", game->score);
+                    print_game_time(game->score);
                 }
                 break;
             case FLAG:
@@ -366,10 +368,12 @@ void playGame(Game *game) {
                 getGameInformationFromUser(game);
                 save_game(game);
                 play = false;
-                printf("Temps de jeu : %d\n", game->score);
+                print_game_time(game->score);
                 break;
             case QUIT:
                 play = false;
+                freeGameStructure(game);
+                menu();
                 break;
             default:
                 break;
@@ -382,7 +386,7 @@ void playGame(Game *game) {
 
 void freeGameStructure(Game *game) {
     if (game == NULL) {
-        fprintf(stderr, "Attempted to free a game with a NULL value\n");
+        //fprintf(stderr, "Attempted to free a game with a NULL value\n");
         return;
     }
 
@@ -423,4 +427,5 @@ void launchMinesweeper() {
 void quitGame(Game *game) {
     freeGameStructure(game);
     printf("Au revoir\n");
+    exit(EXIT_SUCCESS);
 }

@@ -18,7 +18,7 @@ void save_game(Game *game) {
 
     if (!game) return;
 
-    if (!game->over) fileName = file_games_non_completed;
+    if (!isGameWon(game)) fileName = file_games_non_completed;
     else {
         if (game_level(game) == 0) fileName = file_games_easy_completed;
         if (game_level(game) == 1) fileName = file_games_medium_completed;
@@ -29,10 +29,12 @@ void save_game(Game *game) {
     tmpFile = fopen("tmpFile", "a+");
     if (!file) {
         printf("Error on file %s: %s", fileName, strerror(errno));
+        if (tmpFile) fclose(tmpFile);
         exit(EXIT_FAILURE);
     }
     if (!tmpFile) {
         printf("Error on file tmpfile: %s", strerror(errno));
+        fclose(file);
         exit(EXIT_FAILURE);
     }
 
@@ -76,7 +78,7 @@ void save_game(Game *game) {
 }
 
 Game *load_game(int id) {
-    FILE *file = NULL;
+    FILE *file = NULL, *tmpFile = NULL;
     file = fopen(file_games_non_completed, "r");
     int over, nbrLignes = 0;
     char ch = '1';
@@ -134,7 +136,27 @@ Game *load_game(int id) {
                     game->grid.cells[i][j].flagged = flagged;
                 }
             }
+
+            // delete the game laoded
+            tmpFile = fopen("tmpFile", "a+");
+            if (!tmpFile) {
+                printf("Error on file tmpfile: %s", strerror(errno));
+                fclose(file);
+                exit(EXIT_FAILURE);
+            }
+            rewind(file);
+
+            char chaine[10000];
+            while ((fgets(chaine, 10000, file)) != NULL && nbrLignes >= 1) {
+                if ((int) (chaine[1] - '0') == id) continue;
+                fputs(chaine, tmpFile);
+            }
+
             fclose(file);
+            fclose(tmpFile);
+
+            remove(file_games_non_completed);
+            rename("tmpFile", file_games_non_completed);
             return game;
         }
 
@@ -187,7 +209,7 @@ int print_for_loading() {
             if (game.name[j] == '|') game.name[j] = ' ';
 
         game.id = i + 1;
-        table_row(&game, game_level(&game) == 0 ? "Easy" : game_level(&game) == 1 ? "Medium" : "Hard");
+        table_row(&game, game_level(&game) == 0 ? "Facile" : game_level(&game) == 1 ? "Moyen" : "Difficile");
         horitontal_line();
 
         // line code to go to the next line
@@ -198,7 +220,7 @@ int print_for_loading() {
     return nbrLignes;
 }
 
-Game *print_statistics(int level, int *size) {
+Game *fetch_stats(int level, int *size) {
     char *fileName, ch;
     FILE *file = NULL;
     int nbrLignes = 0;
@@ -223,6 +245,7 @@ Game *print_statistics(int level, int *size) {
     }
 
     listeGames = (Game *) malloc(nbrLignes * sizeof(Game));
+
     if (!listeGames) {
         printf("Error during allocation");
         fclose(file);
@@ -249,7 +272,33 @@ Game *print_statistics(int level, int *size) {
 
     fclose(file);
     trierParTas(listeGames, size);
+
     return listeGames;
+}
+
+void print_statistics(int level) {
+    int size = 0;
+    Game *listGame = fetch_stats(level, &size);
+
+    if (size <= 0) {
+        printf("\n");
+        return;
+    }
+
+    printf("Affichage des statistiques pour le niveau %s\n",
+           level == 0 ? "Facile" : level == 1 ? "Moyen" : "Difficile");
+    // table head
+    horitontal_line();
+    table_head();
+    horitontal_line();
+
+    for (int i = 0; i < size; i++) {
+        listGame[i].id = i + 1;
+        table_row(&listGame[i],
+                  game_level(&listGame[i]) == 0 ? "Facile" : game_level(&listGame[i]) == 1 ? "Moyen" : "Difficile");
+        horitontal_line();
+    }
+    free(listGame);
 }
 
 int number_of_lines_in_file(FILE *file) {
@@ -286,7 +335,7 @@ void table_head() {
 void table_row(Game *game, char *level) {
     char str[GAME_NAME_SIZE];
     if (game) {
-        sprintf(str, "0%d", game->id);
+        sprintf(str, " %d", game->id);
         printf("| %s ", str);
         print_char('|', 1);
         sprintf(str, "%s", game->name);

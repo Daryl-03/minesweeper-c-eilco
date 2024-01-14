@@ -23,4 +23,6 @@ void getActionFromUser(Game *game, Position *position, InGameAction *action);
 
 void getGameInformationFromUser(Game *game);
 
+void print_game_time(int gameTime);
+
 #endif // !INTERFACE_H
