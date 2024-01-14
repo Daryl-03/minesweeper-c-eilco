@@ -3,8 +3,7 @@
 
 #include "game.h"
 
-#define GRID_SIZE 5 // Taille de la grille
-
+#define printColor(params) printf("\033[%sm", params)
 
 void setConsoleToUTF8();
 void clearScreen();

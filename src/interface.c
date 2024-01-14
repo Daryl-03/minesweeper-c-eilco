@@ -105,8 +105,8 @@ void getActionFromUser(Game *game, Position *position, InGameAction *action) {
     getchar();
     entrees[4] = '\0';
 
-    position->x = tolower(entrees[1]) - 'a';
-    position->y = atoi(entrees + 2) - 1;
+    position->x = (int) (tolower(entrees[1]) - 'a');
+    position->y = (int) (atoi(entrees + 2) - 1);
     *action = (InGameAction) (char) tolower(entrees[0]);
 
 
@@ -115,7 +115,7 @@ void getActionFromUser(Game *game, Position *position, InGameAction *action) {
     } else {
         if (*action != REVEAL && *action != FLAG && *action != UNFLAG && *action != SAVE && *action != QUIT) {
             clearScreen();
-            printf("Action invalide : %c\n", 'e');
+            printf("Action invalide \n");
             goto getInput;
         }
         if (position->x < 0 || position->x >= game->grid.size.width || position->y < 0 ||
@@ -258,13 +258,13 @@ void getGameInformationFromUser(Game *game) {
 
 void print_game_time(int gameTime) {
     printf("Temps de jeu : ");
-    if ((int) (gameTime / 3600) != 0){
-        printf("%dh ", gameTime/3600);
-        gameTime = gameTime%3600;
+    if ((int) (gameTime / 3600) != 0) {
+        printf("%dh ", gameTime / 3600);
+        gameTime = gameTime % 3600;
     }
-    if ((int) (gameTime / 60) != 0){
-        printf("%dmin ", gameTime/60);
-        gameTime = gameTime%60;
+    if ((int) (gameTime / 60) != 0) {
+        printf("%dmin ", gameTime / 60);
+        gameTime = gameTime % 60;
     }
     printf("%ds\n", gameTime);
 }

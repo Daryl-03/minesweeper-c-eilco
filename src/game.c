@@ -306,7 +306,7 @@ Game *setupNewGame() {
     Size size;
     bool init = false;
     InGameAction action;
-    Position position = {0, 0};
+    Position position = {-1, -1};
 
     getDifficultySettingsFromUser(&mines, &size);
 
@@ -343,16 +343,26 @@ void playGame(Game *game) {
                 if (game->over) {
                     handleGameFinish(game);
                     game->score += (int)(time(NULL) - time1);
-                    printf("You lose\n");
-                    play = false;
+                    printf("Vous avez perdu\n");
                     print_game_time(game->score);
+                    printf("Entrer une touche pour revenir au menu");
+                    getchar();
+                    play = false;
+                    freeGameStructure(game);
+                    menu();
+
                 } else if (isGameWon(game)) {
                     handleGameFinish(game);
                     game->score += (int)(time(NULL) - time1);
+                    printf("Vous avez gagner\n");
                     getGameInformationFromUser(game);
                     save_game(game);
-                    play = false;
                     print_game_time(game->score);
+                    printf("Entrer une touche pour revenir au menu");
+                    getchar();
+                    play = false;
+                    freeGameStructure(game);
+                    menu();
                 }
                 break;
             case FLAG:
