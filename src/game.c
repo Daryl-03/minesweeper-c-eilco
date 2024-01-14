@@ -221,7 +221,6 @@ void revealCell(Game *game, int x, int y) {
     int value = game->grid.cells[y][x].value;
 
     if (value == -1) {
-        printf("Game over !\n");
         game->over = true;
     } else if (value == 0) {
         revealAdjacentCells(game, x, y);
@@ -339,10 +338,13 @@ void playGame(Game *game) {
 
         switch (action) {
             case REVEAL:
-                revealCell(game, position.x, position.y);
+                if (!game->grid.cells[position.x][position.y].flagged)
+                    revealCell(game, position.x, position.y);
+                else break;
+                
                 if (game->over) {
                     handleGameFinish(game);
-                    game->score += (int)(time(NULL) - time1);
+                    game->score += (int) (time(NULL) - time1);
                     printf("Vous avez perdu\n");
                     print_game_time(game->score);
                     printf("Entrer une touche pour revenir au menu");
@@ -353,7 +355,7 @@ void playGame(Game *game) {
 
                 } else if (isGameWon(game)) {
                     handleGameFinish(game);
-                    game->score += (int)(time(NULL) - time1);
+                    game->score += (int) (time(NULL) - time1);
                     printf("Vous avez gagner\n");
                     getGameInformationFromUser(game);
                     save_game(game);
@@ -374,7 +376,7 @@ void playGame(Game *game) {
                 game->flags--;
                 break;
             case SAVE:
-                game->score += (int)(time(NULL) - time1);
+                game->score += (int) (time(NULL) - time1);
                 getGameInformationFromUser(game);
                 save_game(game);
                 play = false;

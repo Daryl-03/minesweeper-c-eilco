@@ -65,7 +65,7 @@ void afficherGrille(Grid *grid) {
                     printf(" ■ ║");
                 }
             } else {
-                if (cells[i][j].flagged) {
+                if (cells[i][j].flagged && cells[i][j].value == -1) {
                     printf(" ☑ ║");
                 }
                 else if (cells[i][j].value == -1)
