@@ -341,7 +341,7 @@ void playGame(Game *game) {
                 if (!game->grid.cells[position.x][position.y].flagged)
                     revealCell(game, position.x, position.y);
                 else break;
-                
+
                 if (game->over) {
                     handleGameFinish(game);
                     game->score += (int) (time(NULL) - time1);
@@ -381,6 +381,10 @@ void playGame(Game *game) {
                 save_game(game);
                 play = false;
                 print_game_time(game->score);
+                printf("Entrer une touche pour revenir au menu");
+                getchar();
+                freeGameStructure(game);
+                menu();
                 break;
             case QUIT:
                 play = false;

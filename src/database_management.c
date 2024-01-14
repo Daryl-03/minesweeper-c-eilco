@@ -326,9 +326,9 @@ void table_head() {
     printf("|");
     printf(" Revealed ");
     printf("|");
-    print_char(' ', (strlen("23h59m59s") - strlen("score")) / 2);
-    printf(" Score ");
-    print_char(' ', (strlen("23h59m59s") - strlen("score")) / 2);
+    print_char(' ', (strlen("23h59m59s") - strlen("temps")) / 2);
+    printf(" Temps ");
+    print_char(' ', (strlen("23h59m59s") - strlen("temps")) / 2);
     printf("|\n");
 }
 
@@ -364,9 +364,28 @@ void table_row(Game *game, char *level) {
         printf("%s", str);
         print_char(' ', (int) (strlen("Revealed") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 1));
         printf("|");
-        sprintf(str, "%d", game->score);
-        print_char(' ', (int) (strlen("23h59m59s") - strlen(str)) / 2);
-        printf(" %s ", str);
+
+        if(game->score >= 60){
+            int gameTime = game->score;
+            print_char(' ', (int) (strlen("23h59m59s") - strlen(str)) / 2);
+            if ((int) (gameTime / 3600) != 0) {
+                sprintf(str,"%dh", gameTime / 3600);
+                printf("%s", str);
+                gameTime = gameTime % 3600;
+            }
+            if ((int) (gameTime / 60) != 0) {
+                sprintf(str,"%dm", gameTime / 60);
+                printf("%s", str);
+                gameTime = gameTime % 60;
+            }
+            sprintf(str,"%ds", gameTime);
+            printf("%s", str);
+        }
+        else{
+            sprintf(str, "%ds", game->score);
+            print_char(' ', (int) (strlen("23h59m59s") - strlen(str)) / 2);
+            printf(" %s ", str);
+        }
         print_char(' ', (int) (strlen("23h59m59s") - strlen(str)) / 2 + (strlen(str) % 2 == 0));
         printf("|\n");
     }
