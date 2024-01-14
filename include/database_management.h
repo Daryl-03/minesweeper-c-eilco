@@ -7,7 +7,7 @@ void save_game(Game *game);
 
 Game *load_game(int id);
 
-Game * print_for_loading(int *size);
+int print_for_loading();
 
 Game *print_statistics(int level, int *size);
 
@@ -23,7 +23,7 @@ int game_level(Game *game);
 
 void echanger_tas(Game *tas, int i, int j);
 
-void inserer(Game* heap, int *size, Game game);
+void inserer(Game *heap, int *size, Game game);
 
 void deleteMin(Game *heap, int *size);
 

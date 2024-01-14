@@ -9,4 +9,7 @@ include_directories(include)
 add_executable(minesweeper_c_eilco
         include/game.h
         src/game.c
-        main.c)
+        main.c
+        src/database_management.c
+        src/interface.c
+)

@@ -1,4 +1,4 @@
-#include "database_management.h"
+#include "../include/database_management.h"
 
 #define file_games_easy_completed "games_completed_easy.txt"
 #define file_games_medium_completed "games_completed_medium.txt"
@@ -105,15 +105,6 @@ Game *load_game(int id) {
     id = nbrLignes - id + 1;
 
     while (ch != EOF) {
-        game->name = malloc(sizeof(char) * GAME_NAME_SIZE);
-        if (!(game->name)) {
-            printf("Error during allocation");
-            free(game->name);
-            free(game);
-            fclose(file);
-            exit(EXIT_FAILURE);
-        }
-
         // fetch a game
         fscanf(file, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}", &game->id, game->name, &game->grid.size.width,
                &game->grid.size.height, &game->mines, &game->flags, &game->revealed, &game->score, &over);
@@ -121,7 +112,6 @@ Game *load_game(int id) {
 
         // check if it's the right game
         if (game->id == id) {
-
             // reintroduces spaces
             for (int i = 0; i < strlen(game->name); i++)
                 if (game->name[i] == '|') game->name[i] = ' ';
@@ -129,7 +119,6 @@ Game *load_game(int id) {
             game->grid.cells = (Cell **) malloc(game->grid.size.height * sizeof(Cell *));
             if (!game->grid.cells) {
                 printf("Error during allocation");
-                free(game->name);
                 free(game);
                 fclose(file);
                 exit(EXIT_FAILURE);
@@ -145,6 +134,7 @@ Game *load_game(int id) {
                     game->grid.cells[i][j].flagged = flagged;
                 }
             }
+            fclose(file);
             return game;
         }
 
@@ -157,17 +147,16 @@ Game *load_game(int id) {
     return NULL;
 }
 
-Game *print_for_loading(int *size) {
+int print_for_loading() {
     FILE *file = NULL;
     file = fopen(file_games_non_completed, "r");
     char ch;
     int over, nbrLignes = 0;
-    Game *listGame = NULL;
+    Game game;
 
     if (!file) {
         printf("Aucune sauvegarde trouvée");
-//        if (game) free(game);
-        return NULL;
+        return nbrLignes;
     }
 
     // count the number of line in the file
@@ -176,55 +165,37 @@ Game *print_for_loading(int *size) {
     if (!nbrLignes) {
         printf("La sauvegarde est vide");
         fclose(file);
-        return NULL;
-    } else *size = nbrLignes;
-
-    listGame = (Game *) malloc(sizeof(Game) * nbrLignes);
-    if (!listGame) {
-        printf("Error during allocation");
-        fclose(file);
-        exit(EXIT_FAILURE);
+        return nbrLignes;
     }
 
+
     // table head
-//    horitontal_line();
-//    table_head();
-//    horitontal_line();
+    horitontal_line();
+    table_head();
+    horitontal_line();
 
     // fetch each game and print it
     rewind(file);
     for (int i = 0; i < nbrLignes; i++) {
-        listGame[i].name = NULL;
-        listGame[i].name = malloc(sizeof(char) * GAME_NAME_SIZE);
-        if (!(listGame[i].name)) {
-            printf("Error during allocation");
-            for (int j = 0; j < i; j++) {
-                free(listGame[i].name);
-            }
-            free(listGame);
-            fclose(file);
-            exit(EXIT_FAILURE);
-        }
-
-        fscanf(file, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}", &listGame[i].id, listGame[i].name, &listGame[i].grid.size.width,
-               &listGame[i].grid.size.height, &listGame[i].mines, &listGame[i].flags, &listGame[i].revealed,
-               &listGame[i].score, &over);
-        listGame[i].over = over;
+        fscanf(file, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}", &game.id, game.name, &game.grid.size.width,
+               &game.grid.size.height, &game.mines, &game.flags, &game.revealed,
+               &game.score, &over);
+        game.over = over;
 
         // reintroduces spaces
-        for (int j = 0; j < strlen(listGame[i].name); j++)
-            if (listGame[i].name[j] == '|') listGame[i].name[j] = ' ';
+        for (int j = 0; j < strlen(game.name); j++)
+            if (game.name[j] == '|') game.name[j] = ' ';
 
-        listGame[i].id = i + 1;
-//        table_row(game, game_level(game) == 0 ? "Easy" : game_level(game) == 1 ? "Medium" : "Hard");
+        game.id = i + 1;
+        table_row(&game, game_level(&game) == 0 ? "Easy" : game_level(&game) == 1 ? "Medium" : "Hard");
+        horitontal_line();
 
         // line code to go to the next line
         while ((ch = (char) fgetc(file)) != EOF && ch != '\n');
     }
-//    horitontal_line();
 
     fclose(file);
-    return listGame;
+    return nbrLignes;
 }
 
 Game *print_statistics(int level, int *size) {
@@ -260,18 +231,6 @@ Game *print_statistics(int level, int *size) {
 
     *size = nbrLignes;
     for (int i = 0, over; i < nbrLignes; i++) {
-        listeGames[i].name = NULL;
-        listeGames[i].name = malloc(sizeof(char) * GAME_NAME_SIZE);
-        if (!(listeGames[i].name)) {
-            printf("Error during allocation");
-            for (int j = 0; j < i; j++) {
-                free(listeGames[i].name);
-            }
-            free(listeGames);
-            fclose(file);
-            exit(EXIT_FAILURE);
-        }
-
         fscanf(file, "{%d;%s ;%d-%d;%d;%d;%d;%d;%d}", &listeGames[i].id, listeGames[i].name,
                &listeGames[i].grid.size.width,
                &listeGames[i].grid.size.height, &listeGames[i].mines, &listeGames[i].flags, &listeGames[i].revealed,
@@ -425,10 +384,10 @@ void deleteMin(Game *heap, int *size) {
         if ((2 * i == *size) || (heap[2 * i].score < heap[2 * i + 1].score)) j = 2 * i;
         else j = 2 * i + 1;
 
-        if(heap[i].score > heap[j].score){
+        if (heap[i].score > heap[j].score) {
             echanger_tas(heap, i, j);
             i = j;
-        }else stop = true;
+        } else stop = true;
     }
 }
 
@@ -446,11 +405,12 @@ void trierParTas(Game *tableau, const int *size) {
         exit(EXIT_FAILURE);
     }
 
-    for(int i = 0; i < *size; i++) inserer(heap, &heap_size, tableau[i]);
-    for(int i = 0; i < *size; i++){
+    for (int i = 0; i < *size; i++) inserer(heap, &heap_size, tableau[i]);
+    for (int i = 0; i < *size; i++) {
         tableau[i] = heap[1];
         deleteMin(heap, &heap_size);
     }
+    free(heap);
 }
 
 

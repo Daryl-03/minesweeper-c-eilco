@@ -8,7 +8,7 @@
 
 void freeGameStructure(Game *game);
 
-Cell createCell(int x, int y){
+Cell createCell(int x, int y) {
     Position position = {x, y};
     Cell cell = {
             .position = position,
@@ -19,11 +19,11 @@ Cell createCell(int x, int y){
     return cell;
 }
 
-Grid newGrid(Size size){
-    Cell **cells = malloc(sizeof (Cell*)*size.height);
+Grid newGrid(Size size) {
+    Cell **cells = malloc(sizeof(Cell *) * size.height);
 
-    for(int i=0; i<size.height; i++){
-        cells[i] = malloc(sizeof (Cell)*size.width);
+    for (int i = 0; i < size.height; i++) {
+        cells[i] = malloc(sizeof(Cell) * size.width);
 
         // error handling
         if (cells[i] == NULL) {
@@ -45,17 +45,17 @@ Grid newGrid(Size size){
     return grid;
 }
 
-void initGame(Game *game, int x, int y){
+void initGame(Game *game, int x, int y) {
     int guessingList[game->grid.size.width * game->grid.size.height];
     int range = game->grid.size.width * game->grid.size.height;
     // fill the guessing list
-    for(int i=0; i<game->grid.size.width * game->grid.size.height; i++){
+    for (int i = 0; i < game->grid.size.width * game->grid.size.height; i++) {
         guessingList[i] = i;
     }
     // remove the cell at the position of the first click
-    guessingList[y*game->grid.size.width + x] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+    guessingList[y * game->grid.size.width + x] = guessingList[game->grid.size.width * game->grid.size.height - 1];
     printf("%d %d\n", x, y);
-    printf("%d %d\n", y*game->grid.size.width + x, game->grid.size.width * game->grid.size.height - 1);
+    printf("%d %d\n", y * game->grid.size.width + x, game->grid.size.width * game->grid.size.height - 1);
     range--;
     // remove the surrounding cells
     range = removeSurroundingCells(game, x, y, guessingList, range);
@@ -67,35 +67,43 @@ void initGame(Game *game, int x, int y){
 }
 
 int removeSurroundingCells(const Game *game, int x, int y, int *guessingList, int range) {
-    if(y - 1 >= 0){
-        if(x-1 >= 0){
-            guessingList[(y-1)*game->grid.size.width + x-1] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+    if (y - 1 >= 0) {
+        if (x - 1 >= 0) {
+            guessingList[(y - 1) * game->grid.size.width + x - 1] = guessingList[
+                    game->grid.size.width * game->grid.size.height - 1];
             range--;
         }
-        guessingList[(y-1)*game->grid.size.width + x] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+        guessingList[(y - 1) * game->grid.size.width + x] = guessingList[
+                game->grid.size.width * game->grid.size.height - 1];
         range--;
-        if(x+1 < game->grid.size.width){
-            guessingList[(y-1)*game->grid.size.width + x+1] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+        if (x + 1 < game->grid.size.width) {
+            guessingList[(y - 1) * game->grid.size.width + x + 1] = guessingList[
+                    game->grid.size.width * game->grid.size.height - 1];
             range--;
         }
     }
-    if(x-1 >= 0){
-        guessingList[y*game->grid.size.width + x-1] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+    if (x - 1 >= 0) {
+        guessingList[y * game->grid.size.width + x - 1] = guessingList[game->grid.size.width * game->grid.size.height -
+                                                                       1];
         range--;
     }
-    if(x+1 < game->grid.size.width){
-        guessingList[y*game->grid.size.width + x+1] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+    if (x + 1 < game->grid.size.width) {
+        guessingList[y * game->grid.size.width + x + 1] = guessingList[game->grid.size.width * game->grid.size.height -
+                                                                       1];
         range--;
     }
-    if(y+1 < game->grid.size.height){
-        if(x-1 >= 0){
-            guessingList[(y+1)*game->grid.size.width + x-1] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+    if (y + 1 < game->grid.size.height) {
+        if (x - 1 >= 0) {
+            guessingList[(y + 1) * game->grid.size.width + x - 1] = guessingList[
+                    game->grid.size.width * game->grid.size.height - 1];
             range--;
         }
-        guessingList[(y+1)*game->grid.size.width + x] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+        guessingList[(y + 1) * game->grid.size.width + x] = guessingList[
+                game->grid.size.width * game->grid.size.height - 1];
         range--;
-        if(x+1 < game->grid.size.width){
-            guessingList[(y+1)*game->grid.size.width + x+1] = guessingList[game->grid.size.width * game->grid.size.height - 1];
+        if (x + 1 < game->grid.size.width) {
+            guessingList[(y + 1) * game->grid.size.width + x + 1] = guessingList[
+                    game->grid.size.width * game->grid.size.height - 1];
             range--;
         }
     }
@@ -104,7 +112,7 @@ int removeSurroundingCells(const Game *game, int x, int y, int *guessingList, in
 
 void generateMinesFromShuffling(Game *game, int *guessingList) {
     // shuffle the guessing list
-    for(int i=0; i<game->grid.size.width * game->grid.size.height; i++){
+    for (int i = 0; i < game->grid.size.width * game->grid.size.height; i++) {
         int j = rand() % (game->grid.size.width * game->grid.size.height);
         int temp = guessingList[i];
         guessingList[i] = guessingList[j];
@@ -112,7 +120,7 @@ void generateMinesFromShuffling(Game *game, int *guessingList) {
     }
 
     // fill the grid with mines
-    for(int i=0; i<game->mines; i++){
+    for (int i = 0; i < game->mines; i++) {
         int haut = guessingList[i] / game->grid.size.width;
         int larg = guessingList[i] % game->grid.size.width;
         game->grid.cells[haut][larg].value = -1;
@@ -122,7 +130,7 @@ void generateMinesFromShuffling(Game *game, int *guessingList) {
 
 void generateMinesFromRandomGuess(Game *game, int *guessingList, int range) {
 
-    for(int i=0; i<game->mines; i++){
+    for (int i = 0; i < game->mines; i++) {
         int j = rand() % range;
         int value = guessingList[j];
         int haut = value / game->grid.size.width;
@@ -131,45 +139,14 @@ void generateMinesFromRandomGuess(Game *game, int *guessingList, int range) {
         addOneToCellsAroundMine(&game->grid, haut, larg);
 
         // suppression de la valeur choisie et remplacement de la case
-        guessingList[j] = guessingList[range-1];
+        guessingList[j] = guessingList[range - 1];
         range--;
     }
 }
 
-void printGrid(Grid grid){
-    for(int i=0; i<grid.size.height; i++){
-        for(int j=0; j<grid.size.width; j++){
-            if(grid.cells[i][j].value == -1)
-                printf("X ");
-            else if(grid.cells[i][j].value == 0)
-                printf("  ");
-            else
-                printf("%d ", grid.cells[i][j].value);
-        }
-        printf("\n");
-    }
-}
 
-void printGridFromPlayerPerspective(Grid grid){
-    for(int i=0; i<grid.size.height; i++){
-        for(int j=0; j<grid.size.width; j++){
-            if(grid.cells[i][j].revealed){
-                if(grid.cells[i][j].value == -1)
-                    printf("X ");
-                else if(grid.cells[i][j].value == 0)
-                    printf("  ");
-                else
-                    printf("%d ", grid.cells[i][j].value);
-            } else {
-                printf("H ");
-            }
-        }
-        printf("\n");
-    }
-}
-
-Game* newGameGeneration(int id, char *name, Size size, int mines){
-    Game *game = malloc(sizeof (Game));
+Game *newGameGeneration(int id, char *name, Size size, int mines) {
+    Game *game = malloc(sizeof(Game));
 
     // error handling
     if (game == NULL) {
@@ -179,7 +156,7 @@ Game* newGameGeneration(int id, char *name, Size size, int mines){
     }
 
     game->id = id;
-    game->name = name;
+    strcpy(game->name, name);
     game->grid = newGrid(size);
     game->mines = mines;
     game->flags = 0;
@@ -198,55 +175,55 @@ Game* newGameGeneration(int id, char *name, Size size, int mines){
  * @param haut
  * @param larg
  */
-void addOneToCellsAroundMine(Grid* grid, int haut, int larg){
+void addOneToCellsAroundMine(Grid *grid, int haut, int larg) {
     // cells above the mine
     Cell **cells = grid->cells;
     Cell c = cells[haut][larg];
-    if(haut-1 >= 0){
-        if(larg-1 >= 0 && grid->cells[haut-1][larg-1].value != -1){
-            cells[haut-1][larg-1].value++;
+    if (haut - 1 >= 0) {
+        if (larg - 1 >= 0 && grid->cells[haut - 1][larg - 1].value != -1) {
+            cells[haut - 1][larg - 1].value++;
         }
-        if(cells[haut-1][larg].value != -1){
-            cells[haut-1][larg].value++;
+        if (cells[haut - 1][larg].value != -1) {
+            cells[haut - 1][larg].value++;
         }
-        if(larg+1 < grid->size.width && cells[haut-1][larg+1].value != -1){
-            cells[haut-1][larg+1].value++;
+        if (larg + 1 < grid->size.width && cells[haut - 1][larg + 1].value != -1) {
+            cells[haut - 1][larg + 1].value++;
         }
     }
 
 //    cells on the same line as the mine
-    if(larg-1 >= 0 && cells[haut][larg-1].value != -1){
-        cells[haut][larg-1].value++;
+    if (larg - 1 >= 0 && cells[haut][larg - 1].value != -1) {
+        cells[haut][larg - 1].value++;
     }
 
-    if(larg+1 < grid->size.width && cells[haut][larg+1].value != -1){
-        cells[haut][larg+1].value++;
+    if (larg + 1 < grid->size.width && cells[haut][larg + 1].value != -1) {
+        cells[haut][larg + 1].value++;
     }
 
     // cells under the mine
-    if(haut+1 < grid->size.height){
-        if(larg-1 >= 0 && cells[haut+1][larg-1].value != -1){
-            cells[haut+1][larg-1].value++;
+    if (haut + 1 < grid->size.height) {
+        if (larg - 1 >= 0 && cells[haut + 1][larg - 1].value != -1) {
+            cells[haut + 1][larg - 1].value++;
         }
-        if(cells[haut+1][larg].value != -1){
-            cells[haut+1][larg].value++;
+        if (cells[haut + 1][larg].value != -1) {
+            cells[haut + 1][larg].value++;
         }
-        if(larg+1 < grid->size.width && cells[haut+1][larg+1].value != -1){
-            cells[haut+1][larg+1].value++;
+        if (larg + 1 < grid->size.width && cells[haut + 1][larg + 1].value != -1) {
+            cells[haut + 1][larg + 1].value++;
         }
     }
 }
 
-void revealCell(Game* game, int x, int y){
+void revealCell(Game *game, int x, int y) {
 //    printf("Revealing cell at %d %d\n", x, y);
     game->grid.cells[y][x].revealed = true;
 
     int value = game->grid.cells[y][x].value;
 
-    if(value == -1){
+    if (value == -1) {
         printf("Game over !\n");
         game->over = true;
-    } else if (value == 0){
+    } else if (value == 0) {
         revealAdjacentCells(game, x, y);
     }
 
@@ -257,143 +234,161 @@ void revealAdjacentCells(Game *game, int x, int y) {
 //    if(game->grid.cells[y][x].revealed)
 //        return;
 
-    Cell** cells = game->grid.cells;
+    Cell **cells = game->grid.cells;
 
-    if(y-1 >= 0){
-        if(x-1 >= 0 && !cells[y-1][x-1].revealed){
-            cells[y-1][x-1].revealed = true;
+    if (y - 1 >= 0) {
+        if (x - 1 >= 0 && !cells[y - 1][x - 1].revealed) {
+            cells[y - 1][x - 1].revealed = true;
             game->revealed++;
-            if(cells[y-1][x-1].value == 0){
-                revealAdjacentCells(game, x-1, y-1);
+            if (cells[y - 1][x - 1].value == 0) {
+                revealAdjacentCells(game, x - 1, y - 1);
             }
         }
-        if(!cells[y-1][x].revealed){
-            cells[y-1][x].revealed = true;
+        if (!cells[y - 1][x].revealed) {
+            cells[y - 1][x].revealed = true;
             game->revealed++;
-            if(cells[y-1][x].value == 0){
-                revealAdjacentCells(game, x, y-1);
+            if (cells[y - 1][x].value == 0) {
+                revealAdjacentCells(game, x, y - 1);
             }
         }
-        if(x+1 < game->grid.size.width && !cells[y-1][x+1].revealed){
-            cells[y-1][x+1].revealed = true;
+        if (x + 1 < game->grid.size.width && !cells[y - 1][x + 1].revealed) {
+            cells[y - 1][x + 1].revealed = true;
             game->revealed++;
-            if(cells[y-1][x+1].value == 0){
-                revealAdjacentCells(game, x+1, y-1);
+            if (cells[y - 1][x + 1].value == 0) {
+                revealAdjacentCells(game, x + 1, y - 1);
             }
         }
     }
 
-    if(x-1 >= 0 && !cells[y][x-1].revealed){
-        cells[y][x-1].revealed = true;
+    if (x - 1 >= 0 && !cells[y][x - 1].revealed) {
+        cells[y][x - 1].revealed = true;
         game->revealed++;
-        if(cells[y][x-1].value == 0){
-            revealAdjacentCells(game, x-1, y);
+        if (cells[y][x - 1].value == 0) {
+            revealAdjacentCells(game, x - 1, y);
         }
     }
-    if(x+1 < game->grid.size.width && !cells[y][x+1].revealed){
-        cells[y][x+1].revealed = true;
+    if (x + 1 < game->grid.size.width && !cells[y][x + 1].revealed) {
+        cells[y][x + 1].revealed = true;
         game->revealed++;
-        if(cells[y][x+1].value == 0){
-            revealAdjacentCells(game, x+1, y);
+        if (cells[y][x + 1].value == 0) {
+            revealAdjacentCells(game, x + 1, y);
         }
     }
 
-    if(y+1 < game->grid.size.height){
-        if(x-1 >= 0 && !cells[y+1][x-1].revealed){
-            cells[y+1][x-1].revealed = true;
+    if (y + 1 < game->grid.size.height) {
+        if (x - 1 >= 0 && !cells[y + 1][x - 1].revealed) {
+            cells[y + 1][x - 1].revealed = true;
             game->revealed++;
-            if(cells[y+1][x-1].value == 0){
-                revealAdjacentCells(game, x-1, y+1);
+            if (cells[y + 1][x - 1].value == 0) {
+                revealAdjacentCells(game, x - 1, y + 1);
             }
         }
-        if(!cells[y+1][x].revealed){
-            cells[y+1][x].revealed = true;
+        if (!cells[y + 1][x].revealed) {
+            cells[y + 1][x].revealed = true;
             game->revealed++;
-            if(cells[y+1][x].value == 0){
-                revealAdjacentCells(game, x, y+1);
+            if (cells[y + 1][x].value == 0) {
+                revealAdjacentCells(game, x, y + 1);
             }
         }
-        if(x+1 < game->grid.size.width && !cells[y+1][x+1].revealed){
-            cells[y+1][x+1].revealed = true;
+        if (x + 1 < game->grid.size.width && !cells[y + 1][x + 1].revealed) {
+            cells[y + 1][x + 1].revealed = true;
             game->revealed++;
-            if(cells[y+1][x+1].value == 0){
-                revealAdjacentCells(game, x+1, y+1);
+            if (cells[y + 1][x + 1].value == 0) {
+                revealAdjacentCells(game, x + 1, y + 1);
             }
         }
     }
 
 }
 
-void createAndPlayGame(){
-
+Game *setupNewGame() {
     int mines = 0;
     Size size;
-    getDifficultySettingsFromUser(&mines, &size);
-
-    if(mines == 0){
-        return;
-    }
-
-    Game *game = newGameGeneration(0, "", size, mines);
-    bool init = false, play = true;
+    bool init = false;
     InGameAction action;
     Position position = {0, 0};
 
-    while(play){
+    getDifficultySettingsFromUser(&mines, &size);
 
-        getActionFromUser(&(game->grid), &position, &action);
+    if (mines == 0) {
+        return NULL;
+    }
 
-        // logs
-//        printf("Action: %c\n", action);
-//        printf("Position: %d %d\n", position.x, position.y);
+    Game *game = newGameGeneration(0, "New Game", size, mines);
+    clearScreen();
+    getActionFromUser(game, &position, &action);
 
+    if (action == REVEAL || action == FLAG) {
+        initGame(game, position.x, position.y);
+    }
 
-        if(!init){
-            initGame(game, position.x, position.y);
-            printf("Position init: %d %d\n", position.x, position.y);
-            init = true;
-        } else {
-            switch (action) {
-                case REVEAL:
-                    revealCell(game, position.x, position.y);
-                    if(game->over){
-                        printf("Game over!\n");
-                        play = false;
-                    } else if(isGameWon(game)){
-                        handleGameWon(game);
-                    }
-                    break;
-                case FLAG:
-                    game->grid.cells[position.y][position.x].flagged = true;
-                    break;
-                case UNFLAG:
-                    game->grid.cells[position.y][position.x].flagged = false;
-                    break;
-                case SAVE:
-                    save_game(game);
-                    break;
-                case QUIT:
+    return game;
+}
+
+void playGame(Game *game) {
+
+    bool play = true;
+    InGameAction action;
+    Position position = {0, 0};
+
+    time_t time1 = time(NULL);
+
+    while (play) {
+        clearScreen();
+        getActionFromUser(game, &position, &action);
+
+        switch (action) {
+            case REVEAL:
+                revealCell(game, position.x, position.y);
+                if (game->over) {
+                    handleGameFinish(game);
+                    printf("You lose\n");
                     play = false;
-                    break;
-                default:
-                    break;
-            }
+                } else if (isGameWon(game)) {
+                    handleGameFinish(game);
+                    game->score += (int)(time(NULL) - time1);
+                    getGameInformationFromUser(game);
+                    save_game(game);
+                    play = false;
+                    printf("Temps de jeu : %d\n", game->score);
+                }
+                break;
+            case FLAG:
+                game->grid.cells[position.y][position.x].flagged = true;
+                game->flags++;
+                break;
+            case UNFLAG:
+                game->grid.cells[position.y][position.x].flagged = false;
+                game->flags--;
+                break;
+            case SAVE:
+                game->score += (int)(time(NULL) - time1);
+                getGameInformationFromUser(game);
+                save_game(game);
+                play = false;
+                printf("Temps de jeu : %d\n", game->score);
+                break;
+            case QUIT:
+                play = false;
+                break;
+            default:
+                break;
         }
     }
 
-    freeGameStructure(game);
+    quitGame(game);
     game = NULL;
 }
 
 void freeGameStructure(Game *game) {
-    if(game == NULL) {
+    if (game == NULL) {
         fprintf(stderr, "Attempted to free a game with a NULL value\n");
+        return;
     }
 
-
-    if (game->grid.cells != NULL){
+    if (game->grid.cells != NULL) {
         for (int i = 0; i < game->grid.size.height; i++) {
-            if (game->grid.cells[i] != NULL){
+            if (game->grid.cells[i] != NULL) {
                 free(game->grid.cells[i]);
             }
         }
@@ -402,11 +397,10 @@ void freeGameStructure(Game *game) {
     free(game);
 }
 
-void handleGameWon(Game *game){
+void handleGameFinish(Game *game) {
     clearScreen();
     revealAllCells(game);
     afficherGrille(&game->grid);
-    printf("You won!\n");
 }
 
 bool isGameWon(const Game *game) {
@@ -414,16 +408,19 @@ bool isGameWon(const Game *game) {
 }
 
 void revealAllCells(Game *game) {
-    for(int i=0; i<game->grid.size.height; i++){
-        for(int j=0; j<game->grid.size.width; j++){
+    for (int i = 0; i < game->grid.size.height; i++) {
+        for (int j = 0; j < game->grid.size.width; j++) {
             game->grid.cells[i][j].revealed = true;
         }
     }
 }
 
-void launchMinesweeper(){
-
+void launchMinesweeper() {
     clearScreen();
     menu();
+}
 
+void quitGame(Game *game) {
+    freeGameStructure(game);
+    printf("Au revoir\n");
 }

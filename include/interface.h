@@ -9,13 +9,7 @@
 void setConsoleToUTF8();
 void clearScreen();
 void afficherGrille(Grid *grid);
-//void afficherGrille(Grid* grid);
-void placerMines(Cell grille[][GRID_SIZE], int mines);
-void initialiserGrille(Cell grille[][GRID_SIZE], int taille);
-void revealAll(Cell grid[][GRID_SIZE]);
-void minesweeper(Cell grille[][GRID_SIZE], int taille, int mines);
 void printMenu();
-void newGame();
 void loadGame();
 void printStatistics();
 // show and handle the menu
@@ -25,6 +19,8 @@ void menu();
 void getDifficultySettingsFromUser(int *mines, Size *size);
 
 // get action from user
-void getActionFromUser(Grid* grid, Position *position, InGameAction *action);
+void getActionFromUser(Game *game, Position *position, InGameAction *action);
+
+void getGameInformationFromUser(Game *game);
 
 #endif // !INTERFACE_H
