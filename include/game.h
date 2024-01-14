@@ -118,7 +118,7 @@ bool isGameWon(const Game *game);
 void revealAllCells(Game *game);
 
 // game finish
-void handleGameFinish(Game *game);
+void handleGameFinish(Game *game, time_t time1, bool won);
 
 // create new game
 Game *setupNewGame();

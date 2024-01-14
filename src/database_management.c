@@ -285,7 +285,7 @@ void print_statistics(int level) {
         return;
     }
 
-    printf("Affichage des statistiques pour le niveau %s\n",
+    printf("Affichage des statistiques pour le niveau %s\n\n",
            level == 0 ? "Facile" : level == 1 ? "Moyen" : "Difficile");
     // table head
     horitontal_line();

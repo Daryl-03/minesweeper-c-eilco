@@ -230,25 +230,27 @@ void loadGame() {
 
 void printStatistics() {
     int choice = -1;
-    printf("\nEnsemble des statistiques\n");
 
     while (!(0 <= choice && choice <= 3)) {
-        printf("Entrer un nombre\n1. Facile\n2. Moyen\n3. Difficile\n0. Retour\n>> ");
+        clearScreen();
+        printf("\nEnsemble des statistiques\n\n");
+        printf("Faites un choix :\n1. Facile\n2. Moyen\n3. Difficile\n0. Retour\n>> ");
         scanf("%d", &choice);
     }
 
     if (choice == 0) {
-        menu();
+        return;
     } else {
+        clearScreen();
         print_statistics(choice - 1);
 
         choix:
-        printf("Entrer un chiffre\n0. Retour au menu\n1. Quitter le jeu\n>> ");
+        printf("\n\nEntrez un chiffre\n0. Retour au menu\n1. Quitter le jeu\n>> ");
         scanf("%d", &choice);
 
         switch (choice) {
             case 0:
-                menu();
+                return;
                 break;
             case 1:
                 quitGame(NULL);

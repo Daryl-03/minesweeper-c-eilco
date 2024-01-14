@@ -10,7 +10,10 @@ int main(){
     srand(time(NULL));
     setConsoleToUTF8();
     // test the game
-    launchMinesweeper();
+
+    while(true){
+        launchMinesweeper();
+    }
 
     return 0;
 }
