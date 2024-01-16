@@ -54,8 +54,6 @@ void initGame(Game *game, int x, int y) {
     }
     // remove the cell at the position of the first click
     guessingList[y * game->grid.size.width + x] = guessingList[game->grid.size.width * game->grid.size.height - 1];
-    printf("%d %d\n", x, y);
-    printf("%d %d\n", y * game->grid.size.width + x, game->grid.size.width * game->grid.size.height - 1);
     range--;
     // remove the surrounding cells
     range = removeSurroundingCells(game, x, y, guessingList, range);
@@ -159,12 +157,10 @@ Game *newGameGeneration(int id, char *name, Size size, int mines) {
     strcpy(game->name, name);
     game->grid = newGrid(size);
     game->mines = mines;
-    game->flags = 0;
+    game->flags = mines;
     game->revealed = 0;
     game->score = 0;
     game->over = false;
-
-//    initGame(game);
 
     return game;
 }
@@ -178,7 +174,6 @@ Game *newGameGeneration(int id, char *name, Size size, int mines) {
 void addOneToCellsAroundMine(Grid *grid, int haut, int larg) {
     // cells above the mine
     Cell **cells = grid->cells;
-    Cell c = cells[haut][larg];
     if (haut - 1 >= 0) {
         if (larg - 1 >= 0 && grid->cells[haut - 1][larg - 1].value != -1) {
             cells[haut - 1][larg - 1].value++;
@@ -303,22 +298,26 @@ void revealAdjacentCells(Game *game, int x, int y) {
 Game *setupNewGame() {
     int mines = 0;
     Size size;
-    bool init = false;
     InGameAction action;
     Position position = {-1, -1};
 
     getDifficultySettingsFromUser(&mines, &size);
-
     if (mines == 0) {
         return NULL;
     }
 
     Game *game = newGameGeneration(0, "New Game", size, mines);
+
+    debut:
     clearScreen();
     getActionFromUser(game, &position, &action);
-
-    if (action == REVEAL || action == FLAG) {
+    if (action == REVEAL) {
         initGame(game, position.x, position.y);
+    } else if (action == QUIT) {
+        freeGameStructure(game);
+        return NULL;
+    } else {
+        goto debut;
     }
 
     return game;
@@ -343,37 +342,31 @@ void playGame(Game *game) {
                 else break;
 
                 if (game->over) {
-                    handleGameFinish(game);
-                    game->score += (int) (time(NULL) - time1);
-                    printf("Vous avez perdu\n");
-                    print_game_time(game->score);
-                    printf("Entrer une touche pour revenir au menu");
-                    getchar();
+                    handleGameFinish(game, time1, false);
                     play = false;
-                    freeGameStructure(game);
                     menu();
 
                 } else if (isGameWon(game)) {
-                    handleGameFinish(game);
-                    game->score += (int) (time(NULL) - time1);
-                    printf("Vous avez gagner\n");
-                    getGameInformationFromUser(game);
-                    save_game(game);
-                    print_game_time(game->score);
-                    printf("Entrer une touche pour revenir au menu");
-                    getchar();
+                    handleGameFinish(game, time1, true);
                     play = false;
-                    freeGameStructure(game);
                     menu();
                 }
                 break;
             case FLAG:
-                game->grid.cells[position.y][position.x].flagged = true;
-                game->flags++;
+                if (game->grid.cells[position.y][position.x].revealed == false &&
+                    game->grid.cells[position.y][position.x].flagged == false) {
+
+                    if(game->flags){
+                        game->grid.cells[position.y][position.x].flagged = true;
+                        game->flags--;
+                    }
+                }
                 break;
             case UNFLAG:
-                game->grid.cells[position.y][position.x].flagged = false;
-                game->flags--;
+                if(game->flags < game->mines){
+                    game->grid.cells[position.y][position.x].flagged = false;
+                    game->flags++;
+                }
                 break;
             case SAVE:
                 game->score += (int) (time(NULL) - time1);
@@ -383,7 +376,9 @@ void playGame(Game *game) {
                 print_game_time(game->score);
                 printf("Entrer une touche pour revenir au menu");
                 getchar();
+                getchar();
                 freeGameStructure(game);
+                clearScreen();
                 menu();
                 break;
             case QUIT:
@@ -396,13 +391,11 @@ void playGame(Game *game) {
         }
     }
 
-    quitGame(game);
-    game = NULL;
+    menu();
 }
 
 void freeGameStructure(Game *game) {
     if (game == NULL) {
-        //fprintf(stderr, "Attempted to free a game with a NULL value\n");
         return;
     }
 
@@ -417,10 +410,26 @@ void freeGameStructure(Game *game) {
     free(game);
 }
 
-void handleGameFinish(Game *game) {
+void handleGameFinish(Game *game, time_t time1, bool won) {
     clearScreen();
     revealAllCells(game);
-    afficherGrille(&game->grid);
+    afficherGrille(game);
+
+    game->score += (int) (time(NULL) - time1);
+
+    if (won) {
+        printf("Vous avez gagn%c !\n", 130);
+        getGameInformationFromUser(game);
+        save_game(game);
+    } else {
+        printf("Vous avez perdu !\n");
+    }
+    print_game_time(game->score);
+    printf("Entrez une touche pour revenir au menu");
+    getchar();
+    clearScreen();
+
+    freeGameStructure(game);
 }
 
 bool isGameWon(const Game *game) {

@@ -15,6 +15,8 @@ void setConsoleToUTF8()
 }
 #else
 
+int fistLaunch = 1;
+
 // Fonction de nettoyage de l'écran pour les systèmes non-Windows
 void clearScreen() {
     system("clear");
@@ -26,7 +28,7 @@ void setConsoleToUTF8() {
 #endif
 
 
-void afficherGrille(Grid *grid) {
+void afficherGrille(Game *game) {
     char *helpList[] = {"Aide de jeu",
                         "Entrez une action suivie des coordonnees (ex: ra4)",
                         "Actions possibles: ",
@@ -35,11 +37,13 @@ void afficherGrille(Grid *grid) {
                         "u: enlever un drapeau",
                         "s: sauvegarder la partie",
                         "q: quitter la partie",
+                        "Nombre de drapeaux disponibles: ",
+                        "■ : Cellule cachée; ⚑ : Drapeau; ☑ : Drapeau juste; ✹ : Mines;",
     };
     int helpListIndex = 0;
-    int width = grid->size.width;
-    int height = grid->size.height;
-    Cell **cells = grid->cells;
+    int width = game->grid.size.width;
+    int height = game->grid.size.height;
+    Cell **cells = game->grid.cells;
 
     printf("  ");
     for (int i = 0; i < width; ++i)
@@ -67,8 +71,7 @@ void afficherGrille(Grid *grid) {
             } else {
                 if (cells[i][j].flagged && cells[i][j].value == -1) {
                     printf(" ☑ ║");
-                }
-                else if (cells[i][j].value == -1)
+                } else if (cells[i][j].value == -1)
                     printf(" ✹ ║");
                 else {
                     if (cells[i][j].value == 0)
@@ -86,7 +89,10 @@ void afficherGrille(Grid *grid) {
             for (int j = 0; j < width - 1; ++j)
                 printf("═══╬");
             printf("═══╣");
-            if (helpListIndex < 8) printf("\t\t%s", helpList[helpListIndex++]);
+            if (helpListIndex < 10) printf("\t\t%s", helpList[helpListIndex++]);
+            if(helpListIndex - 1 == 8) {
+                printf("%d", game->flags);
+            }
             printf("\n");
         }
     }
@@ -95,14 +101,20 @@ void afficherGrille(Grid *grid) {
     for (int i = 0; i < width - 1; ++i)
         printf("═══╩");
     printf("═══╝\n");
+
+    while (helpListIndex < 10) {
+        printf("\t\t\t\t\t\t%s", helpList[helpListIndex++]);
+        if(helpListIndex - 1 == 8) printf("%d", game->flags);
+        printf("\n");
+    }
 }
 
 
 void getActionFromUser(Game *game, Position *position, InGameAction *action) {
-    char entrees[100];
+    char entrees[100] = {'r', 'a', '1'};
 
     getInput:
-    afficherGrille(&(game->grid));
+    afficherGrille(game);
     printf("\n>> ");
     scanf("%s", entrees);
     getchar();
@@ -116,7 +128,7 @@ void getActionFromUser(Game *game, Position *position, InGameAction *action) {
     if ((*action == QUIT || *action == SAVE)) {
         return;
     } else {
-        if (*action != REVEAL && *action != FLAG && *action != UNFLAG && *action != SAVE && *action != QUIT) {
+        if (*action != REVEAL && *action != FLAG && *action != UNFLAG) {
             clearScreen();
             printf("Action invalide \n");
             goto getInput;
@@ -131,7 +143,12 @@ void getActionFromUser(Game *game, Position *position, InGameAction *action) {
 }
 
 void printMenu() {
-    printf("        Bienvenue dans le jeu de Demineur !\n\n");
+    if (fistLaunch) {
+        printf("Bienvenue dans le jeu de Demineur !\n\n");
+        fistLaunch = 0;
+    } else {
+        printf("MENU\n");
+    }
     printf("1. Lancer une nouvelle partie\n");
     printf("2. Charger une partie\n");
     printf("3. Voir les statistiques\n");
@@ -187,7 +204,6 @@ void getDifficultySettingsFromUser(int *mines, Size *size) {
             *size = EASY_SIZE;
             break;
         case 2:
-
             *mines = MEDIUM_MINES;
             *size = MEDIUM_SIZE;
             break;
@@ -206,11 +222,11 @@ void getDifficultySettingsFromUser(int *mines, Size *size) {
 }
 
 void loadGame() {
-    int choice = -1, nbrLigne = 0;
+    int choice = -1, nbrLigne;
     printf("\nEnsemble des jeux sauvegardes\n");
     nbrLigne = print_for_loading();
 
-    if(nbrLigne == 0){
+    if (nbrLigne == 0) {
         printf("\nTap pour retourner au menu");
         getchar();
         menu();
@@ -224,7 +240,7 @@ void loadGame() {
     if (choice == 0) {
         menu();
     } else {
-        playGame(load_game(choice));
+        playGame(load_game(1));
     }
 }
 
@@ -233,7 +249,9 @@ void printStatistics() {
     printf("\nEnsemble des statistiques\n");
 
     while (!(0 <= choice && choice <= 3)) {
-        printf("Entrer un nombre\n1. Facile\n2. Moyen\n3. Difficile\n0. Retour\n>> ");
+        clearScreen();
+        printf("\nEnsemble des statistiques\n\n");
+        printf("Faites un choix :\n1. Facile\n2. Moyen\n3. Difficile\n0. Retour\n>> ");
         scanf("%d", &choice);
     }
 
@@ -243,7 +261,7 @@ void printStatistics() {
         print_statistics(choice - 1);
 
         choix:
-        printf("Entrer un chiffre\n0. Retour au menu\n1. Quitter le jeu\n>> ");
+        printf("\n\nEntrez un chiffre\n0. Retour au menu\n1. Quitter le jeu\n>> ");
         scanf("%d", &choice);
 
         switch (choice) {

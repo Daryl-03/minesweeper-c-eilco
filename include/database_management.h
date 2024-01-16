@@ -13,11 +13,11 @@ Game *fetch_stats(int level, int *size);
 
 void print_statistics(int level);
 
-void horitontal_line();
+void horitontal_line(bool isStat);
 
-void table_row(Game *game, char *level);
+void table_row(Game *game, char *level, bool isStat);
 
-void table_head();
+void table_head(bool isStat);
 
 int number_of_lines_in_file(FILE *file);
 

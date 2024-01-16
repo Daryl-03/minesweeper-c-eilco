@@ -7,7 +7,7 @@
 
 void setConsoleToUTF8();
 void clearScreen();
-void afficherGrille(Grid *grid);
+void afficherGrille(Game *game);
 void printMenu();
 void loadGame();
 void printStatistics();

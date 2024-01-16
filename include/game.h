@@ -1,13 +1,17 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define GAME_NAME_SIZE 81
+#define GAME_NAME_SIZE 40
+
 #define EASY_MINES 10
 #define MEDIUM_MINES 40
 #define HARD_MINES 99
 
+#define EASY_FLAGS 5
+#define MEDIUM_FLAGS 17
+#define HARD_FLAGS 45
 
-#define EASY_SIZE (Size){9, 9}
+#define EASY_SIZE (Size){11, 11}
 #define MEDIUM_SIZE (Size){16, 16}
 #define HARD_SIZE (Size){26, 16}
 
@@ -31,10 +35,6 @@ typedef struct size {
     int width;
     int height;
 } Size;
-
-//const Size EASY_SIZE = {9, 9}, MEDIUM_SIZE = {16, 16}, HARD_SIZE = {30, 16};
-
-
 
 // now to the cell structure
 typedef struct cell {
@@ -118,7 +118,7 @@ bool isGameWon(const Game *game);
 void revealAllCells(Game *game);
 
 // game finish
-void handleGameFinish(Game *game);
+void handleGameFinish(Game *game, time_t time1, bool won);
 
 // create new game
 Game *setupNewGame();
