@@ -90,7 +90,7 @@ void afficherGrille(Game *game) {
                 printf("═══╬");
             printf("═══╣");
             if (helpListIndex < 10) printf("\t\t%s", helpList[helpListIndex++]);
-            if(helpListIndex - 1 == 8) {
+            if (helpListIndex - 1 == 8) {
                 printf("%d", game->flags);
             }
             printf("\n");
@@ -104,7 +104,7 @@ void afficherGrille(Game *game) {
 
     while (helpListIndex < 10) {
         printf("\t\t\t\t\t\t%s", helpList[helpListIndex++]);
-        if(helpListIndex - 1 == 8) printf("%d", game->flags);
+        if (helpListIndex - 1 == 8) printf("%d", game->flags);
         printf("\n");
     }
 }
@@ -237,20 +237,20 @@ void loadGame() {
     do {
         printf("Selectionner une partie à charger (un nombre entre 1 et %d, 0 pour retourner au menu) : ", nbrLigne);
 
-        if(scanf("%d", &choice) != 1 || !((-1 < choice) && (choice <= nbrLigne))) {
+        if (scanf("%d", &choice) != 1 || !((-1 < choice) && (choice <= nbrLigne))) {
             printf("Choix invalide\n");
 
-            while(getchar() != '\n');
+            while (getchar() != '\n');
 
             continue;
         }
 
-    }while (!((-1 < choice) && (choice <= nbrLigne)));
+    } while (!((-1 < choice) && (choice <= nbrLigne)));
 
     if (choice == 0) {
         menu();
     } else {
-        playGame(load_game(1));
+        playGame(load_game(choice));
     }
 }
 

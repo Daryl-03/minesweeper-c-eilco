@@ -326,7 +326,7 @@ void table_head(bool isStat) {
         print_char(' ', (10 - strlen("niveaux")));
         printf("|");
         printf(" Mines ");
-        printf("|");
+        printf("| ");
     }
 
     printf(" Drapeaux ");
@@ -356,7 +356,7 @@ void table_row(Game *game, char *level, bool isStat) {
             if (strlen(level)) {
                 print_char(' ', 3);
                 printf("%s", level);
-                print_char(' ', (int) (10- strlen(level)));
+                print_char(' ', (int) (10 - strlen(level)));
                 printf("|");
             }
             sprintf(str, "%d", game->mines);
@@ -365,14 +365,18 @@ void table_row(Game *game, char *level, bool isStat) {
             print_char(' ', (int) (strlen("Mines") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
             printf("|");
         } else {
-            printf("|");
+            printf("| ");
         }
 
-        sprintf(str, "%d", game->flags);
+        if (game->flags < 10)
+            sprintf(str, " %d", game->flags);
+        else
+            sprintf(str, "%d", game->flags);
+
         print_char(' ', (int) (strlen("Drapeaux") + 2 - strlen(str)) / 2);
         printf("%s", str);
         print_char(' ', (int) (strlen("Drapeaux") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
-        printf(" |");
+        printf("|");
         sprintf(str, "%d", game->revealed);
         print_char(' ', (int) (strlen("Revelees") + 2 - strlen(str)) / 2);
         printf("%s", str);
@@ -412,10 +416,11 @@ void horitontal_line(bool isStat) {
     print_char('+', 1);
 
     if (!isStat) {
-        print_char('-', 10+3);
+        print_char('-', 10 + 3);
         print_char('+', 1);
         print_char('-', strlen("mines") + 2);
         print_char('+', 1);
+        print_char('-', 1);
     }
 
     print_char('-', strlen("Drapeaux") + 2);
