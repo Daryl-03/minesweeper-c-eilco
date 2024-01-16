@@ -211,6 +211,10 @@ void addOneToCellsAroundMine(Grid *grid, int haut, int larg) {
 
 void revealCell(Game *game, int x, int y) {
 //    printf("Revealing cell at %d %d\n", x, y);
+
+    if(game->grid.cells[y][x].flagged || game->grid.cells[y][x].revealed)
+        return;
+
     game->grid.cells[y][x].revealed = true;
 
     int value = game->grid.cells[y][x].value;
@@ -337,7 +341,7 @@ void playGame(Game *game) {
 
         switch (action) {
             case REVEAL:
-                if (!game->grid.cells[position.x][position.y].flagged)
+                if (!(game->grid.cells[position.x][position.y].flagged))
                     revealCell(game, position.x, position.y);
                 else break;
 
@@ -363,7 +367,7 @@ void playGame(Game *game) {
                 }
                 break;
             case UNFLAG:
-                if(game->flags < game->mines){
+                if((game->flags < game->mines )&& game->grid.cells[position.y][position.x].flagged){
                     game->grid.cells[position.y][position.x].flagged = false;
                     game->flags++;
                 }

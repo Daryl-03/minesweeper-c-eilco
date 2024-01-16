@@ -12,9 +12,9 @@
 #define HARD_FLAGS 45
 
 #define EASY_SIZE (Size){11, 11}
+//#define EASY_SIZE (Size){9, 9}
 #define MEDIUM_SIZE (Size){16, 16}
 #define HARD_SIZE (Size){26, 16}
-
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -22,7 +22,6 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-
 
 // Let's define the game structures
 

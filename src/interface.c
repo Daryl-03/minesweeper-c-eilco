@@ -125,7 +125,7 @@ void getActionFromUser(Game *game, Position *position, InGameAction *action) {
     *action = (InGameAction) (char) tolower(entrees[0]);
 
 
-    if ((*action == QUIT || *action == SAVE)) {
+    if ((*action == QUIT || *action == SAVE) && strlen(entrees) == 1) {
         return;
     } else {
         if (*action != REVEAL && *action != FLAG && *action != UNFLAG) {
@@ -143,9 +143,11 @@ void getActionFromUser(Game *game, Position *position, InGameAction *action) {
 }
 
 void printMenu() {
-    if (fistLaunch) {
+//    declaring a static variable to check if it's the first launch of the game
+    static int firstLaunch = 1;
+    if (firstLaunch) {
         printf("Bienvenue dans le jeu de Demineur !\n\n");
-        fistLaunch = 0;
+        firstLaunch = 0;
     } else {
         printf("MENU\n");
     }
@@ -232,10 +234,18 @@ void loadGame() {
         menu();
     }
 
-    while (!(-1 < choice && choice <= nbrLigne)) {
-        printf("Selectionner une partie à chager (un nombre entre 1 et %d, 0 pour retourner au menu) : ", nbrLigne);
-        scanf("%d", &choice);
-    }
+    do {
+        printf("Selectionner une partie à charger (un nombre entre 1 et %d, 0 pour retourner au menu) : ", nbrLigne);
+
+        if(scanf("%d", &choice) != 1 || !((-1 < choice) && (choice <= nbrLigne))) {
+            printf("Choix invalide\n");
+
+            while(getchar() != '\n');
+
+            continue;
+        }
+
+    }while (!((-1 < choice) && (choice <= nbrLigne)));
 
     if (choice == 0) {
         menu();
