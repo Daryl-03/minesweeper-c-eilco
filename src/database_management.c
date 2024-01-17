@@ -331,8 +331,11 @@ void table_head(bool isStat) {
 
     printf(" Drapeaux ");
     printf("|");
-    printf(" Revelees ");
-    printf("|");
+    if (!isStat) {
+        printf(" Revelees ");
+        printf("|");
+    }
+
     print_char(' ', (strlen("23h59m59s") - strlen("temps")) / 2);
     printf(" Temps ");
     print_char(' ', (strlen("23h59m59s") - strlen("temps")) / 2);
@@ -342,7 +345,11 @@ void table_head(bool isStat) {
 void table_row(Game *game, char *level, bool isStat) {
     char str[GAME_NAME_SIZE];
     if (game) {
-        sprintf(str, " %d", game->id);
+        if (game->id < 10) {
+            sprintf(str, " %d", game->id);
+        } else {
+            sprintf(str, "%d", game->id);
+        }
         printf("| %s ", str);
         print_char('|', 1);
         sprintf(str, "%s", game->name);
@@ -364,26 +371,25 @@ void table_row(Game *game, char *level, bool isStat) {
             printf("%s", str);
             print_char(' ', (int) (strlen("Mines") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
             printf("|");
-            print_char(' ', (int) (strlen("Drapeaux") + 2 - strlen(str)) / 2);
-        } else {
-            printf("|");
-            print_char(' ', (int) (strlen("Drapeaux ") + 2 - strlen(str)) / 2);
+
+            sprintf(str, "%d", game->revealed);
+            print_char(' ', (int) (strlen("Revelees") + 2 - strlen(str)) / 2);
+            printf("%s", str);
+            print_char(' ', (int) (strlen("Revelees") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 1));
+            printf(" ");
         }
 
+        printf("|");
         if (game->flags < 10)
-            sprintf(str, " %d", game->flags);
+            sprintf(str, "%d ", game->flags);
         else
             sprintf(str, "%d", game->flags);
 
+        print_char(' ', (int) (strlen("Drapeaux") + 2 - (int) strlen(str)) / 2);
+        printf("%s", str);
+        print_char(' ', (int) (strlen("Drapeaux") + 2 - (int) strlen(str)) / 2 + (strlen(str) % 2 == 1));
+        printf("|");
 
-        printf("%s", str);
-        print_char(' ', (int) (strlen("Drapeaux") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
-        printf("|");
-        sprintf(str, "%d", game->revealed);
-        print_char(' ', (int) (strlen("Revelees") + 2 - strlen(str)) / 2);
-        printf("%s", str);
-        print_char(' ', (int) (strlen("Revelees") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 1));
-        printf("|");
 
         if (game->score >= 60) {
             int gameTime = game->score;
@@ -427,8 +433,11 @@ void horitontal_line(bool isStat) {
 
     print_char('-', strlen("Drapeaux") + 2);
     print_char('+', 1);
-    print_char('-', strlen("Revelees") + 2);
-    print_char('+', 1);
+    if (!isStat) {
+        print_char('-', strlen("Revelees") + 2);
+        print_char('+', 1);
+    }
+
     print_char('-', strlen("23h59m59s") + 2);
     print_char('+', 1);
     printf("\n");
