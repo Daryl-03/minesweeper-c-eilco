@@ -364,8 +364,10 @@ void table_row(Game *game, char *level, bool isStat) {
             printf("%s", str);
             print_char(' ', (int) (strlen("Mines") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
             printf("|");
+            print_char(' ', (int) (strlen("Drapeaux") + 2 - strlen(str)) / 2);
         } else {
-            printf("| ");
+            printf("|");
+            print_char(' ', (int) (strlen("Drapeaux ") + 2 - strlen(str)) / 2);
         }
 
         if (game->flags < 10)
@@ -373,7 +375,7 @@ void table_row(Game *game, char *level, bool isStat) {
         else
             sprintf(str, "%d", game->flags);
 
-        print_char(' ', (int) (strlen("Drapeaux") + 2 - strlen(str)) / 2);
+
         printf("%s", str);
         print_char(' ', (int) (strlen("Drapeaux") + 2 - strlen(str)) / 2 + (strlen(str) % 2 == 0));
         printf("|");
@@ -503,6 +505,3 @@ void trierParTas(Game *tableau, const int *size) {
     }
     free(heap);
 }
-
-
-

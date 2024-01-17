@@ -3,14 +3,18 @@
 
 #include "game.h"
 
-#define printColor(params) printf("\033[%sm", params)
-
 void setConsoleToUTF8();
+
 void clearScreen();
+
 void afficherGrille(Game *game);
+
 void printMenu();
+
 void loadGame();
+
 void printStatistics();
+
 // show and handle the menu
 void menu();
 

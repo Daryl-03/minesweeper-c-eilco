@@ -7,9 +7,6 @@
 #define MEDIUM_MINES 40
 #define HARD_MINES 99
 
-#define EASY_FLAGS 5
-#define MEDIUM_FLAGS 17
-#define HARD_FLAGS 45
 
 #define EASY_SIZE (Size){11, 11}
 //#define EASY_SIZE (Size){9, 9}
